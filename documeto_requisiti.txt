@@ -1,0 +1,44 @@
+1. Introduzione
+1.1 Scopo del documento
+Il presente documento descrive il progetto PIT WALL, selezionato come tema per il lavoro
+del quinto anno. Lo scopo del documento è di:
+● Descrivere in modo chiaro il prodotto che gli studenti dovranno realizzare.
+● Raccogliere i requisiti funzionali e non funzionali del sistema.
+● Fornire una progettazione concettuale con diagrammi ER, UML e casi d&#39;uso.
+● Definire una roadmap di lavoro con milestone e attività principali.
+1.2 Contesto
+Il progetto è sviluppato nell&#39;ambito del corso di Informatica del quinto anno. Il prodotto finale
+è un&#39;applicazione web realizzata con backend in Python/Flask e database relazionale. Il
+tema scelto è originale rispetto all&#39;esempio proposto (Recipe Hub) e soddisfa tutti i requisiti
+tecnici richiesti:
+● Gestione dati persistente su più tabelle con relazioni.
+● Autenticazione e controllo degli accessi per ruolo e team.
+● Interfaccia web con visualizzazione dinamica dei contenuti.
+● Relazioni multiple nel database (utenti, team, circuiti, post, media, commenti).
+1.3 Tema scelto: PIT WALL
+PIT WALL è una piattaforma digitale dedicata ai team di Formula 1. Ogni team può creare
+un proprio spazio privato in cui i membri pubblicano e condividono dati tecnici (telemetrie,
+strategie, setup vettura), post, media e commenti relativi a ogni circuito del calendario di
+gara.
+La piattaforma comprende anche una sezione pubblica con le caratteristiche tecniche di
+ciascun circuito del Mondiale di Formula 1, consultabile da tutti gli utenti autenticati
+indipendentemente dal team di appartenenza.
+Il nome &quot;PIT WALL&quot; richiama la zona dei box in Formula 1, dove si trovano gli ingegneri e i
+tecnici che analizzano i dati della vettura in tempo reale durante la gara: un riferimento
+diretto al cuore dell&#39;attività della piattaforma.
+
+2. Obiettivi Generali
+Gli obiettivi principali del sistema PIT WALL sono:
+● Consentire la registrazione e l&#39;autenticazione degli utenti, con assegnazione a un
+team di appartenenza.
+● Garantire la visibilità dei contenuti (post, telemetrie, strategie, media, commenti)
+esclusivamente ai membri dello stesso team.
+● Permettere la creazione, modifica ed eliminazione di post tecnici associati a un
+circuito specifico.
+
+● Supportare il caricamento di file media (immagini, grafici, dati CSV) collegati ai post.
+● Consentire la pubblicazione di commenti sui post all&#39;interno del proprio team.
+● Fornire una sezione circuiti con le caratteristiche tecniche di ogni tracciato del
+calendario F1.
+● Offrire a ogni utente una pagina di profilo con riepilogo delle proprie attività.
+● Prevedere un ruolo amministratore del team con capacità di gestire i membri
