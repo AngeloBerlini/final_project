@@ -198,8 +198,3 @@ Esempi di extend (comportamenti opzionali):
 | Pit Wall | Zona dei box da cui ingegneri e tecnici monitorano la gara e comunicano con il pilota; nome simbolico del progetto |
 | Membro | Utente autenticato appartenente a un team, con ruolo 'member' |
 
-# TODO
-8. Pianificazione e milestone
-1. Gantt semplificato
-9. Entità e relazioni (schema ER)
-10. Diagramma UML delle classi
