@@ -1,0 +1,21 @@
+@startuml uc
+left to right direction
+actor Visitatore
+actor Utente
+Visitatore <|-- Utente
+
+Visitatore --> (Visualizza elenco ricette)
+Visitatore --> (Visualizza dettaglio ricetta)
+
+Utente --> (Registrazione utente)
+Utente --> (Login)
+Utente --> (Recupero password)
+Utente --> (Crea ricetta)
+Utente --> (Aggiungi ai preferiti)
+
+(Crea ricetta) .> (Verifica autenticazione) : <<include>>
+(Aggiungi ai preferiti) .> (Verifica autenticazione) : <<include>>
+
+(Recupero password) .> (Login) : <<extend>>
+(Aggiungi ai preferiti) .> (Visualizza dettaglio ricetta) : <<extend>>
+@enduml

@@ -109,63 +109,7 @@ Il nome 'PIT WALL' richiama la zona dei box in Formula 1, dove si trovano ingegn
 
 ## 6.1 Diagramma dei Casi d'Uso
 
-```mermaid
-flowchart LR
-    %% Definizione degli Attori (Rappresentati come Nodi stilizzati)
-    Visitatore(["👤 Utente Non Autenticato"])
-    Membro(["👤 Membro del Team"])
-    Admin(["👤 Team Admin"])
-
-    %% Definizione dei Casi d'Uso Principali (Forma ovale)
-    UC01([Registrazione con codice invito])
-    UC02([Login / Logout])
-    UC03([Visualizza lista post])
-    UC04([Visualizza dettaglio post])
-    UC05([Crea post tecnico])
-    UC06([Allega media])
-    UC07([Commenta post])
-    UC08([Visualizza circuiti])
-    UC09([Gestisci membri team])
-
-    %% Definizione dei Casi d'Uso di Relazione (Include / Extend)
-    Auth([Verifica Autenticazione])
-    AuthAd([Verifica Ruolo Admin])
-    Filtra([Filtra Post])
-    ModEli([Modifica / Elimina Post])
-
-    %% Collegamenti Attori -> Casi d'Uso
-    Visitatore --> UC01
-    Visitatore --> UC02
-
-    Membro --> UC02
-    Membro --> UC03
-    Membro --> UC04
-    Membro --> UC05
-    Membro --> UC07
-    Membro --> UC08
-
-    Admin --> UC09
-    Admin --> UC03
-    Admin --> UC04
-    Admin --> UC05
-    Admin --> UC07
-    Admin --> UC08
-
-    %% Relazioni <<include>> (Caso d'Uso Base -.-> Caso d'Uso Incluso)
-    UC05 -. "<<include>>" .-> Auth
-    UC06 -. "<<include>>" .-> Auth
-    UC07 -. "<<include>>" .-> Auth
-    UC09 -. "<<include>>" .-> AuthAd
-
-    %% Relazioni <<extend>> (Caso d'Uso Esteso -.-> Caso d'Uso Base)
-    UC06 -. "<<extend>>" .-> UC05
-    Filtra -. "<<extend>>" .-> UC03
-    ModEli -. "<<extend>>" .-> UC04
-
-    %% Stile per rendere gli attori trasparenti come etichette
-    classDef actor fill:transparent,stroke:none,color:#000,font-weight:bold;
-    class Visitatore,Membro,Admin actor;
-```
+![Diagramma dei casi d'uso](./diagrams/use_case.png)
 
 ## 6.2 Descrizione Semplificata dei Casi d'Uso
 
