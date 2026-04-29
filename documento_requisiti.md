@@ -223,63 +223,43 @@ Esempi di extend (comportamenti opzionali):
 
 ---
 
-## 8. Pianificazione e Milestone
+## 8. Pianificazione e milestone
 
-Il progetto è suddiviso in tre fasi principali: **Analisi**, **Sviluppo** e **Rifinitura**. Ogni fase raggruppa le attività necessarie al completamento del relativo livello di maturità del sistema.
+Questa sezione descrive la sequenza di lavoro del progetto, suddivisa in tre fasi principali:
 
-### 8.1 Fasi del Progetto
+- Analisi: definire i requisiti, i casi d'uso e i modelli concettuali.
+- Sviluppo: realizzare le funzionalità principali, l'interfaccia e la gestione dati.
+- Rifinitura: testare, correggere e preparare la consegna.
 
-#### Fase 1 – Analisi e Progettazione
+Nella fase di analisi si producono gli schemi ER e UML; questi documenti aiutano a progettare il database e le classi prima di scrivere il codice.
 
-- Definizione dei requisiti funzionali e non funzionali.
-- Stesura del documento dei requisiti (questo documento).
-- Progettazione del diagramma ER del database.
-- Progettazione del diagramma UML delle classi principali.
-- Definizione dei casi d'uso e delle relazioni include/extend.
-- Progettazione della struttura dei Blueprint Flask.
+Un possibile piano di lavoro su 5 settimane (adattato al progetto PIT WALL):
 
-> **Milestone**: documento dei requisiti approvato, schema ER e casi d'uso completati.
+| Settimana | Attività |
+| --- | --- |
+| 1 | Analisi dei requisiti, scelta del tema, disegno ER e UML, preparazione ambiente di lavoro (virtualenv, .env, struttura Blueprint) |
+| 2 | Configurazione Flask, sistema di autenticazione (registrazione con codice invito, login, hashing), modello dati iniziale (User, Team, Circuit) |
+| 3 | Implementazione CRUD per Post e Comment, associazione Post-Team-Circuit, validazione upload media |
+| 4 | Filtri e ricerca (per circuito, categoria, data), gestione team (inviti, promozioni), profilo utente e pagine di elenco/dettaglio |
+| 5 | Test funzionali, controlli di sicurezza (accesso ai media, controllo team_id), ottimizzazioni, documentazione e preparazione consegna su GitHub |
 
-#### Fase 2 – Sviluppo
+### 8.1 Gantt semplificato
 
-- Setup dell'ambiente di sviluppo: virtualenv, file `.env`.
-- Implementazione del modello dati con SQLAlchemy (`User`, `Team`, `Post`, `Comment`, `Media`, `Circuit`).
-- **Blueprint Auth**: registrazione con codice invito, login, logout, hashing bcrypt.
-- **Blueprint Team**: dashboard, gestione membri, generazione/rinnovo codice invito.
-- **Blueprint Posts**: creazione, modifica, eliminazione, filtro per circuito/categoria/data.
-- **Blueprint Media**: upload, validazione estensione/dimensione, download protetto.
-- **Blueprint Comments**: pubblicazione e visualizzazione commenti ordinati per timestamp.
-- **Blueprint Circuits**: lista circuiti e scheda tecnica per tracciato.
-- **Blueprint Profile**: pagina utente con riepilogo post, commenti e media.
-- Implementazione dei controlli di autorizzazione (`team_id` check su ogni route protetta).
+```mermaid
+gantt
+    dateFormat  YYYY-MM-DD
+    title Piano di progetto PIT WALL 
+    section Analisi
+    Requisiti e schema ER         :a1, 2026-05-01, 3d
+    Diagramma UML                  :a2, after a1, 2d
+    section Sviluppo
+    Autenticazione utente          :b1, after a2, 2d
+    Modello dati iniziale (User/Team/Circuit) :b1b, after b1, 2d
+    CRUD Post e Comment            :b2, after b1b, 2d
+    Upload media e validazioni     :b3, after b2, 2d
+    Filtri, ricerca e gestione team:b4, after b3, 2d
+    section Rifinitura
+    Test funzionali e sicurezza    :c1, after b4, 2d
+    Documentazione e consegna su GitHub :c2, after c1, 2d
+```
 
-> **Milestone**: tutte le funzionalità principali operative e testate in locale.
-
-#### Fase 3 – Rifinitura e Consegna
-
-- Revisione dell'interfaccia utente: responsive design, UX coerente su desktop e tablet.
-- Test funzionali end-to-end per ogni caso d'uso.
-- Verifica dei requisiti non funzionali (tempi di caricamento, sicurezza upload, isolamento team).
-- Documentazione del codice e del file `README.md` per l'esecuzione in locale.
-- Revisione finale del documento dei requisiti e aggiornamento eventuali discrepanze.
-
-> **Milestone**: progetto pronto per la consegna e la presentazione.
-
-### 8.2 Gantt Semplificato
-
-| Attività | Fase | Settimana |
-|---|---|:---:|
-| Definizione requisiti e documento | Analisi | 1 |
-| Diagramma ER e UML | Analisi | 1–2 |
-| Casi d'uso e struttura Blueprint | Analisi | 2 |
-| Setup ambiente e modello dati | Sviluppo | 3 |
-| Blueprint Auth (login, registrazione) | Sviluppo | 3–4 |
-| Blueprint Team e gestione membri | Sviluppo | 4 |
-| Blueprint Posts (CRUD + filtri) | Sviluppo | 4–5 |
-| Blueprint Media (upload/download) | Sviluppo | 5 |
-| Blueprint Comments e Circuits | Sviluppo | 5–6 |
-| Blueprint Profile | Sviluppo | 6 |
-| Test funzionali e sicurezza | Rifinitura | 7 |
-| UI responsive e revisione UX | Rifinitura | 7 |
-| Documentazione e README | Rifinitura | 8 |
-| Revisione finale e consegna | Rifinitura | 8 |
