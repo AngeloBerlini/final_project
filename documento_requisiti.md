@@ -23,9 +23,7 @@
    - 6.3 [Relazioni tra Casi d'Uso: include ed extend](#63-relazioni-tra-casi-duso-include-ed-extend)
    - 6.4 [Tabella Riepilogativa dei Casi d'Uso](#64-tabella-riepilogativa-dei-casi-duso)
 7. [Glossario dei Termini](#7-glossario-dei-termini)
-8. [Pianificazione e Milestone](#8-pianificazione-e-milestone)
-   - 8.1 [Fasi del Progetto](#81-fasi-del-progetto)
-   - 8.2 [Gantt Semplificato](#82-gantt-semplificato)
+8. [Gantt Semplificato](#8-gantt-semplificato)
 
 ---
 
@@ -53,7 +51,7 @@ L'applicazione è un'applicazione web con backend in Python/Flask e database rel
 
 PIT WALL è una piattaforma digitale dedicata ai team di Formula 1. Ogni team dispone di uno spazio privato in cui i propri membri possono pubblicare e condividere dati tecnici (telemetrie, strategie, setup vettura), post, media e commenti relativi a ogni circuito del calendario di gara.
 
-La piattaforma include anche una sezione con le caratteristiche tecniche di ciascun circuito del Mondiale di Formula 1, consultabile da tutti gli utenti autenticati indipendentemente dal team di appartenenza.
+La piattaforma include anche una sezione pubblica con le caratteristiche tecniche di ciascun circuito del Mondiale di Formula 1, consultabile da qualsiasi visitatore senza necessità di autenticazione.
 
 Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegneri e tecnici che analizzano i dati della vettura in tempo reale.
 
@@ -66,7 +64,7 @@ Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegn
 3. Garantire che i contenuti di ogni team siano visibili esclusivamente ai propri membri.
 4. Consentire il caricamento di file media allegati ai post (immagini, PDF, CSV di telemetria).
 5. Permettere ai membri del team di commentare i post pubblicati.
-6. Fornire una sezione circuiti con le caratteristiche tecniche di ogni tracciato del calendario F1.
+6. Fornire una sezione circuiti, consultabile pubblicamente senza autenticazione, con le caratteristiche tecniche di ogni tracciato del calendario F1.
 7. Offrire una pagina di profilo dove l'utente vede le proprie attività, post pubblicati e statistiche.
 
 ---
@@ -81,7 +79,7 @@ Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegn
 
 ### Attori Principali
 
-- **Utente Non Autenticato** — può accedere solo alla pagina di login e registrazione.
+- **Utente Non Autenticato** — visitatore della piattaforma; può accedere alle pagine di login e registrazione e consultare la sezione pubblica dei circuiti.
 - **Membro del Team** — utente autenticato appartenente a un team; può creare post, caricare media, commentare e consultare i circuiti.
 - **Team Admin** — membro con privilegi elevati; può gestire i membri del team e modificare o eliminare qualsiasi contenuto del team.
 - **Sistema** — attore interno che gestisce sessioni, validazione upload e controlli di sicurezza sulle route.
@@ -98,7 +96,7 @@ Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegn
 4. Modifica ed eliminazione dei post da parte dell'autore o dell'admin.
 5. Caricamento di file media allegati a un post (PNG, JPG, PDF, CSV); download protetto per i soli membri del team.
 6. Pubblicazione e visualizzazione di commenti sui post del team.
-7. Sezione circuiti con informazioni tecniche di ogni tracciato (nome, paese, lunghezza, curve, record sul giro, layout).
+7. Sezione circuiti pubblica, accessibile anche senza login, con informazioni tecniche di ogni tracciato (nome, paese, lunghezza, curve, record sul giro, layout).
 8. Pagina di profilo con riepilogo dei propri post, commenti e media caricati.
 9. Gestione del team da parte dell'admin: invito nuovi membri tramite codice, rimozione, promozione a co-admin.
 
@@ -109,7 +107,7 @@ Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegn
 - Come **membro**, voglio filtrare i post per circuito o categoria in modo da trovare rapidamente le informazioni che mi servono.
 - Come **membro**, voglio allegare file CSV di telemetria o grafici PDF ai post per rendere l'analisi più completa.
 - Come **membro**, voglio commentare i post del team per discutere strategie e dati in tempo reale.
-- Come **utente autenticato**, voglio consultare la scheda di un circuito per conoscerne le caratteristiche tecniche.
+- Come **visitatore**, voglio consultare la scheda di un circuito per conoscerne le caratteristiche tecniche anche senza dover accedere alla piattaforma.
 - Come **Team Admin**, voglio invitare nuovi tecnici nel team tramite codice in modo da controllare chi accede ai dati.
 
 ---
@@ -154,7 +152,7 @@ Il membro autenticato visualizza la lista dei post del proprio team, opzionalmen
 
 #### UC05 – Crea Post Tecnico
 
-Il membro autenticato compila un form con titolo, corpo, categoria e circuito associato. Il sistema salva il post collegandolo al team e all'autore.
+Il membro autenticato compila un form con titolo, corpo, categoria e circuito associato. Il sistema salva il post collegandolo al team e all'autore. Durante la creazione è possibile allegare opzionalmente file media (immagini, PDF, CSV di telemetria).
 
 #### UC06 – Commenta Post
 
@@ -166,7 +164,7 @@ Il Team Admin accede alla pagina di gestione del team, dove può generare o rige
 
 #### UC08 – Visualizza Circuiti
 
-Qualsiasi utente autenticato può accedere alla sezione circuiti, visualizzare la lista e aprire la scheda tecnica di ogni tracciato (lunghezza, curve, layout, record sul giro).
+Qualsiasi visitatore accede alla sezione circuiti, visualizza la lista e apre la scheda tecnica di ogni tracciato (lunghezza, curve, layout, record sul giro), senza necessità di autenticazione.
 
 ### 6.3 Relazioni tra Casi d'Uso: include ed extend
 
@@ -178,29 +176,25 @@ In un diagramma dei casi d'uso si usano due tipi di relazioni aggiuntive:
 I casi d'uso che richiedono autenticazione includono obbligatoriamente la verifica della sessione:
 
 - Crea Post `<<include>>` Verifica Autenticazione
-- Allega Media `<<include>>` Verifica Autenticazione
 - Commenta Post `<<include>>` Verifica Autenticazione
 - Gestisci Membri `<<include>>` Verifica Ruolo Admin
 
 Esempi di extend (comportamenti opzionali):
 
-- Allega Media `<<extend>>` Crea Post — allegare file è un'azione opzionale durante la creazione di un post.
 - Filtra Post `<<extend>>` Visualizza Lista Post — il filtro per circuito o categoria è attivabile opzionalmente.
-- Modifica/Elimina Post `<<extend>>` Visualizza Dettaglio Post — disponibile solo per l'autore o l'admin.
 
 ### 6.4 Tabella Riepilogativa dei Casi d'Uso
 
 | ID | Caso d'Uso | Attore | Relazioni |
 |---|---|---|---|
 | UC01 | Registrazione con codice invito | Utente non auth. | — |
-| UC02 | Login / Logout | Tutti gli attori | — |
+| UC02 | Login / Logout | Utente non auth. | — |
 | UC03 | Visualizza lista post | Membro / Admin | `<<extend>>` Filtra Post |
-| UC04 | Visualizza dettaglio post | Membro / Admin | `<<extend>>` Modifica/Elimina |
+| UC04 | Visualizza dettaglio post | Membro / Admin | — |
 | UC05 | Crea post tecnico | Membro / Admin | `<<include>>` Verifica Auth |
-| UC06 | Allega media | Membro / Admin | `<<include>>` Verifica Auth; `<<extend>>` Crea Post |
-| UC07 | Commenta post | Membro / Admin | `<<include>>` Verifica Auth |
-| UC08 | Visualizza circuiti | Membro / Admin | — |
-| UC09 | Gestisci membri team | Admin | `<<include>>` Verifica Ruolo Admin |
+| UC06 | Commenta post | Membro / Admin | `<<include>>` Verifica Auth |
+| UC07 | Gestisci membri team | Admin | `<<include>>` Verifica Ruolo Admin |
+| UC08 | Visualizza circuiti | Tutti gli attori | — |
 
 ---
 
@@ -223,7 +217,7 @@ Esempi di extend (comportamenti opzionali):
 
 ---
 
-## 8. Gantt Semplificato
+## 8. Gantt 
 
 ```mermaid
 gantt
