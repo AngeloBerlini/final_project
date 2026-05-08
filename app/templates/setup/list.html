@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Setup – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Setup vettura</h1>
+    <p>{{ current_user.team.name }}</p>
+  </div>
+  <a href="{{ url_for('setup.create') }}" class="btn btn-primary">+ Nuovo setup</a>
+</div>
+
+<form method="GET" class="filters">
+  <select name="circuit_id" onchange="this.form.submit()">
+    <option value="">Tutti i circuiti</option>
+    {% for c in circuits %}
+    <option value="{{ c.id }}" {% if selected_circuit == c.id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  {% if selected_circuit %}
+  <a href="{{ url_for('setup.list') }}" class="btn btn-secondary btn-sm">Reset</a>
+  {% endif %}
+</form>
+
+{% if setups %}
+<div class="posts-grid">
+  {% for s in setups %}
+  <a href="{{ url_for('setup.detail', setup_id=s.id) }}" class="card post-card">
+    <div class="card-header">
+      <span class="card-title">{{ s.title }}</span>
+      <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted);border-color:var(--border);">Setup</span>
+    </div>
+    <div class="card-meta">
+      {{ s.circuit.name }} &bull; {{ s.author.username }} &bull; {{ s.created_at.strftime('%d %b %Y') }}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h3>Nessun setup trovato</h3>
+  <p>{% if selected_circuit %}Prova a cambiare il filtro.{% else %}Crea il primo setup del team.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

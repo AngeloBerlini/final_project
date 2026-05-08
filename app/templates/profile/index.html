@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Profilo – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>{{ current_user.username }}</h1>
+    <p>
+      {{ current_user.team.name }} &bull;
+      <span class="badge badge-{% if current_user.is_admin() %}analisi{% else %}telemetria{% endif %}">
+        {{ current_user.role }}
+      </span>
+      &bull; {{ current_user.email }}
+    </p>
+  </div>
+</div>
+
+<div class="profile-stats">
+  <div class="stat-card">
+    <div class="number">{{ posts|length }}</div>
+    <div class="label">Post pubblicati</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{ comments|length }}</div>
+    <div class="label">Commenti</div>
+  </div>
+  <div class="stat-card">
+    <div class="number">{{ media_files|length }}</div>
+    <div class="label">File caricati</div>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:1rem;">Ultimi post</h3>
+  {% if posts %}
+  {% for post in posts[:10] %}
+  <a href="{{ url_for('posts.detail', post_id=post.id) }}" class="card post-card" style="margin-bottom:0.5rem;">
+    <div class="card-header">
+      <span>{{ post.title }}</span>
+      <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
+    </div>
+    <div class="card-meta">
+      {{ post.circuit.name }} &bull; {{ post.created_at.strftime('%d %b %Y') }}
+    </div>
+  </a>
+  {% endfor %}
+  {% if posts|length > 10 %}
+  <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">
+    e altri {{ posts|length - 10 }} post &mdash;
+    <a href="{{ url_for('posts.list') }}">vedi tutti</a>
+  </p>
+  {% endif %}
+  {% else %}
+  <p style="color:var(--text-muted);">Nessun post ancora.</p>
+  {% endif %}
+</div>
+{% endblock %}

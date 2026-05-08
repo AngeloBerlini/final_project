@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Post – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Post del team</h1>
+    <p>{{ current_user.team.name }}</p>
+  </div>
+  <a href="{{ url_for('posts.create') }}" class="btn btn-primary">+ Nuovo post</a>
+</div>
+
+<form method="GET" class="filters">
+  <select name="circuit_id" onchange="this.form.submit()">
+    <option value="">Tutti i circuiti</option>
+    {% for c in circuits %}
+    <option value="{{ c.id }}" {% if selected_circuit == c.id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <select name="category" onchange="this.form.submit()">
+    <option value="">Tutte le categorie</option>
+    {% for cat in categories %}
+    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat|capitalize }}</option>
+    {% endfor %}
+  </select>
+  {% if selected_circuit or selected_category %}
+  <a href="{{ url_for('posts.list') }}" class="btn btn-secondary btn-sm">Reset filtri</a>
+  {% endif %}
+</form>
+
+{% if posts %}
+<div class="posts-grid">
+  {% for post in posts %}
+  <a href="{{ url_for('posts.detail', post_id=post.id) }}" class="card post-card">
+    <div class="card-header">
+      <span class="card-title">{{ post.title }}</span>
+      <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
+    </div>
+    <div class="card-meta">
+      {{ post.circuit.name }} &bull;
+      {{ post.author.username }} &bull;
+      {{ post.created_at.strftime('%d %b %Y') }} &bull;
+      {{ post.comments.count() }} commenti &bull;
+      {{ post.media_files.count() }} file
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h3>Nessun post trovato</h3>
+  <p>{% if selected_circuit or selected_category %}Prova a cambiare i filtri.{% else %}Crea il primo post tecnico del team.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{% if strategy %}Modifica strategia{% else %}Nuova strategia{% endif %} – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{% if strategy %}Modifica strategia{% else %}Nuova strategia di gara{% endif %}</h1>
+</div>
+
+<form method="POST"
+      action="{{ url_for('strategy.edit', strategy_id=strategy.id) if strategy else url_for('strategy.create') }}">
+
+  <div class="card">
+    <h3 class="section-title">Informazioni generali</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Titolo</label>
+        <input type="text" name="title"
+               value="{{ strategy.title if strategy else '' }}" required
+               placeholder="es. Monaco GP – Strategia una sosta">
+      </div>
+      <div class="form-group">
+        <label>Circuito</label>
+        <select name="circuit_id" required>
+          {% for c in circuits %}
+          <option value="{{ c.id }}"
+                  {% if strategy and strategy.circuit_id == c.id %}selected{% endif %}>
+            {{ c.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title">Stint</h3>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">
+      Definisci la sequenza di gomme e giri per ogni stint della gara.
+    </p>
+
+    <div id="stints-container">
+      {% if stints %}
+        {% for stint in stints %}
+        <div class="stint-row" data-stint="{{ stint.position }}">
+          <span class="stint-label">Stint {{ stint.position }}</span>
+          <select name="tire_{{ stint.position }}" class="tire-select">
+            {% for c in compounds %}
+            <option value="{{ c }}" {% if c == stint.tire_compound %}selected{% endif %}>
+              {{ c|capitalize }}
+            </option>
+            {% endfor %}
+          </select>
+          <div class="stint-laps-group">
+            <input type="number" name="laps_{{ stint.position }}"
+                   min="1" max="80" value="{{ stint.laps }}" required>
+            <span style="color:var(--text-muted);font-size:0.85rem;">giri</span>
+          </div>
+          <button type="button" class="btn btn-danger btn-sm" onclick="removeStint(this)">−</button>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <button type="button" class="btn btn-secondary btn-sm" onclick="addStint()"
+            style="margin-top:0.75rem;">+ Aggiungi stint</button>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title">Note</h3>
+    <div class="form-group">
+      <textarea name="note" rows="3"
+                placeholder="Condizioni meteo previste, scenario alternativo...">{{ strategy.note if strategy and strategy.note else '' }}</textarea>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-bottom:2rem;">
+    <button type="submit" class="btn btn-primary">
+      {% if strategy %}Aggiorna strategia{% else %}Salva strategia{% endif %}
+    </button>
+    <a href="{{ url_for('strategy.detail', strategy_id=strategy.id) if strategy else url_for('strategy.list') }}"
+       class="btn btn-secondary">Annulla</a>
+  </div>
+</form>
+
+<script>
+const COMPOUNDS = {{ compounds | tojson }};
+let stintCount = document.querySelectorAll('.stint-row').length;
+
+function buildOptions(selected) {
+  return COMPOUNDS.map(c =>
+    `<option value="${c}" ${c === selected ? 'selected' : ''}>${c.charAt(0).toUpperCase() + c.slice(1)}</option>`
+  ).join('');
+}
+
+function addStint(compound, laps) {
+  stintCount++;
+  const row = document.createElement('div');
+  row.className = 'stint-row';
+  row.dataset.stint = stintCount;
+  row.innerHTML = `
+    <span class="stint-label">Stint ${stintCount}</span>
+    <select name="tire_${stintCount}" class="tire-select">${buildOptions(compound || COMPOUNDS[0])}</select>
+    <div class="stint-laps-group">
+      <input type="number" name="laps_${stintCount}" min="1" max="80"
+             value="${laps || ''}" placeholder="Giri" required>
+      <span style="color:var(--text-muted);font-size:0.85rem;">giri</span>
+    </div>
+    <button type="button" class="btn btn-danger btn-sm" onclick="removeStint(this)">−</button>
+  `;
+  document.getElementById('stints-container').appendChild(row);
+}
+
+function removeStint(btn) {
+  if (document.querySelectorAll('.stint-row').length <= 1) return;
+  btn.closest('.stint-row').remove();
+  renumber();
+}
+
+function renumber() {
+  document.querySelectorAll('.stint-row').forEach((row, i) => {
+    const n = i + 1;
+    row.dataset.stint = n;
+    row.querySelector('.stint-label').textContent = `Stint ${n}`;
+    row.querySelector('select').name = `tire_${n}`;
+    row.querySelector('input[type="number"]').name = `laps_${n}`;
+  });
+  stintCount = document.querySelectorAll('.stint-row').length;
+}
+
+if (stintCount === 0) addStint();
+</script>
+{% endblock %}

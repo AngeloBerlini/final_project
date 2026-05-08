@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Gestione Team – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Gestione Team</h1>
+    <p>{{ team.name }}</p>
+  </div>
+</div>
+
+<div class="card team-info">
+  <div class="invite-row">
+    <div>
+      <p style="color:var(--text-muted);font-size:0.8rem;margin-bottom:0.4rem;text-transform:uppercase;letter-spacing:1px;">
+        Codice invito
+      </p>
+      <span class="invite-code">{{ team.invite_code }}</span>
+      <p style="color:var(--text-muted);font-size:0.8rem;margin-top:0.5rem;">
+        Condividi questo codice per invitare nuovi membri nel team.
+      </p>
+    </div>
+    <form method="POST" action="{{ url_for('team.regenerate_code') }}"
+          onsubmit="return confirm('Rigenerare il codice? Il vecchio non funzionerà più.')">
+      <button type="submit" class="btn btn-secondary btn-sm">Rigenera codice</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h3 style="margin-bottom:1rem;">Membri del team ({{ members|length }})</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Ruolo</th>
+        <th>Membro dal</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for member in members %}
+      <tr>
+        <td>
+          {{ member.username }}
+          {% if member.id == current_user.id %}
+          <span style="color:var(--text-muted);font-size:0.75rem;">(tu)</span>
+          {% endif %}
+        </td>
+        <td>{{ member.email }}</td>
+        <td>
+          <span class="badge {% if member.role == 'admin' %}badge-analisi{% else %}badge-telemetria{% endif %}">
+            {{ member.role }}
+          </span>
+        </td>
+        <td>{{ member.created_at.strftime('%d %b %Y') }}</td>
+        <td>
+          {% if member.id != current_user.id %}
+          <div class="actions">
+            <form method="POST" action="{{ url_for('team.promote_member', user_id=member.id) }}">
+              <button type="submit" class="btn btn-secondary btn-sm">
+                {% if member.role == 'admin' %}Rimuovi admin{% else %}Promuovi ad admin{% endif %}
+              </button>
+            </form>
+            <form method="POST" action="{{ url_for('team.remove_member', user_id=member.id) }}"
+                  onsubmit="return confirm('Rimuovere {{ member.username }} dal team?')">
+              <button type="submit" class="btn btn-danger btn-sm">Rimuovi</button>
+            </form>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

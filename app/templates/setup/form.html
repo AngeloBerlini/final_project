@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}{% if setup %}Modifica setup{% else %}Nuovo setup{% endif %} – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1>{% if setup %}Modifica setup{% else %}Nuovo setup vettura{% endif %}</h1>
+</div>
+
+<form method="POST"
+      action="{{ url_for('setup.edit', setup_id=setup.id) if setup else url_for('setup.create') }}">
+
+  <!-- Intestazione -->
+  <div class="card">
+    <h3 class="section-title">Informazioni generali</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Titolo</label>
+        <input type="text" name="title" value="{{ setup.title if setup else '' }}" required
+               placeholder="es. Monaco QP – Setup bassa deportanza">
+      </div>
+      <div class="form-group">
+        <label>Circuito</label>
+        <select name="circuit_id" required>
+          {% for c in circuits %}
+          <option value="{{ c.id }}" {% if setup and setup.circuit_id == c.id %}selected{% endif %}>
+            {{ c.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aerodinamica -->
+  <div class="card">
+    <h3 class="section-title">Aerodinamica</h3>
+    <div class="setup-grid">
+      <div class="form-group">
+        <label>Ala anteriore (mm)</label>
+        <input type="number" step="0.1" name="ala_anteriore"
+               value="{{ setup.ala_anteriore if setup and setup.ala_anteriore is not none else '' }}"
+               placeholder="es. 42">
+      </div>
+      <div class="form-group">
+        <label>Ala posteriore (mm)</label>
+        <input type="number" step="0.1" name="ala_posteriore"
+               value="{{ setup.ala_posteriore if setup and setup.ala_posteriore is not none else '' }}"
+               placeholder="es. 58">
+      </div>
+    </div>
+  </div>
+
+  <!-- Differenziale -->
+  <div class="card">
+    <h3 class="section-title">Differenziale</h3>
+    <div class="setup-grid-1">
+      <div class="form-group">
+        <label>Differenziale uscita curva (%)</label>
+        <input type="number" step="0.1" min="0" max="100" name="differenziale"
+               value="{{ setup.differenziale if setup and setup.differenziale is not none else '' }}"
+               placeholder="es. 60">
+      </div>
+    </div>
+  </div>
+
+  <!-- Geometria sospensioni -->
+  <div class="card">
+    <h3 class="section-title">Geometria sospensioni</h3>
+    <div class="setup-grid">
+      <div class="form-group">
+        <label>Camber anteriore (°)</label>
+        <input type="number" step="0.01" name="camber_ant"
+               value="{{ setup.camber_ant if setup and setup.camber_ant is not none else '' }}"
+               placeholder="es. -3.50">
+      </div>
+      <div class="form-group">
+        <label>Camber posteriore (°)</label>
+        <input type="number" step="0.01" name="camber_post"
+               value="{{ setup.camber_post if setup and setup.camber_post is not none else '' }}"
+               placeholder="es. -1.80">
+      </div>
+      <div class="form-group">
+        <label>Toe anteriore (mm)</label>
+        <input type="number" step="0.01" name="toe_ant"
+               value="{{ setup.toe_ant if setup and setup.toe_ant is not none else '' }}"
+               placeholder="es. 0.10">
+      </div>
+      <div class="form-group">
+        <label>Toe posteriore (mm)</label>
+        <input type="number" step="0.01" name="toe_post"
+               value="{{ setup.toe_post if setup and setup.toe_post is not none else '' }}"
+               placeholder="es. 0.20">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sospensioni -->
+  <div class="card">
+    <h3 class="section-title">Sospensioni</h3>
+    <div class="setup-grid">
+      <div class="form-group">
+        <label>Sospensioni anteriore</label>
+        <input type="text" name="sospensioni_ant"
+               value="{{ setup.sospensioni_ant if setup and setup.sospensioni_ant else '' }}"
+               placeholder="es. 7 – morbida">
+      </div>
+      <div class="form-group">
+        <label>Sospensioni posteriore</label>
+        <input type="text" name="sospensioni_post"
+               value="{{ setup.sospensioni_post if setup and setup.sospensioni_post else '' }}"
+               placeholder="es. 5 – media">
+      </div>
+    </div>
+  </div>
+
+  <!-- Freni -->
+  <div class="card">
+    <h3 class="section-title">Freni</h3>
+    <div class="setup-grid-1">
+      <div class="form-group">
+        <label>Bilanciamento freni (%)</label>
+        <input type="number" min="1" max="99" name="bilanciamento_freni"
+               value="{{ setup.bilanciamento_freni if setup and setup.bilanciamento_freni is not none else '' }}"
+               placeholder="es. 57">
+      </div>
+    </div>
+  </div>
+
+  <!-- Pressioni pneumatici -->
+  <div class="card">
+    <h3 class="section-title">Pressioni pneumatici (psi)</h3>
+    <div class="tires-grid">
+      <div class="tire-corner">
+        <span class="tire-label">Ant. SX</span>
+        <input type="number" step="0.1" name="pressione_ant_sx"
+               value="{{ setup.pressione_ant_sx if setup and setup.pressione_ant_sx is not none else '' }}"
+               placeholder="23.5">
+      </div>
+      <div class="tire-corner">
+        <span class="tire-label">Ant. DX</span>
+        <input type="number" step="0.1" name="pressione_ant_dx"
+               value="{{ setup.pressione_ant_dx if setup and setup.pressione_ant_dx is not none else '' }}"
+               placeholder="23.5">
+      </div>
+      <div class="tire-corner">
+        <span class="tire-label">Post. SX</span>
+        <input type="number" step="0.1" name="pressione_post_sx"
+               value="{{ setup.pressione_post_sx if setup and setup.pressione_post_sx is not none else '' }}"
+               placeholder="21.0">
+      </div>
+      <div class="tire-corner">
+        <span class="tire-label">Post. DX</span>
+        <input type="number" step="0.1" name="pressione_post_dx"
+               value="{{ setup.pressione_post_dx if setup and setup.pressione_post_dx is not none else '' }}"
+               placeholder="21.0">
+      </div>
+    </div>
+  </div>
+
+  <!-- Note -->
+  <div class="card">
+    <h3 class="section-title">Note aggiuntive</h3>
+    <div class="form-group">
+      <textarea name="note" rows="4"
+                placeholder="Osservazioni, condizioni pista, riferimento al pilota...">{{ setup.note if setup and setup.note else '' }}</textarea>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-bottom:2rem;">
+    <button type="submit" class="btn btn-primary">
+      {% if setup %}Aggiorna setup{% else %}Salva setup{% endif %}
+    </button>
+    <a href="{{ url_for('setup.detail', setup_id=setup.id) if setup else url_for('setup.list') }}"
+       class="btn btn-secondary">Annulla</a>
+  </div>
+
+</form>
+{% endblock %}

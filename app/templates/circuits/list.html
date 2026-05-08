@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Circuiti F1 – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Circuiti Formula 1</h1>
+    <p>Calendario mondiale – caratteristiche tecniche di ogni tracciato</p>
+  </div>
+</div>
+
+<div class="circuit-grid">
+  {% for circuit in circuits %}
+  <a href="{{ url_for('circuits.detail', circuit_id=circuit.id) }}" class="card circuit-card">
+    <div class="card-header">
+      <span class="card-title">{{ circuit.name }}</span>
+    </div>
+    <div class="card-meta" style="margin-bottom:0.75rem;">{{ circuit.country }}</div>
+    <div class="circuit-stat">
+      <span>Lunghezza</span>
+      <strong>{{ circuit.length_km }} km</strong>
+    </div>
+    <div class="circuit-stat">
+      <span>Curve</span>
+      <strong>{{ circuit.num_curves }}</strong>
+    </div>
+    {% if circuit.lap_record %}
+    <div class="circuit-stat">
+      <span>Record sul giro</span>
+      <strong>{{ circuit.lap_record }}</strong>
+    </div>
+    {% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% endblock %}

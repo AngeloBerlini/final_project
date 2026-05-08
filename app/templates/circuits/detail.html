@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ circuit.name }} – PIT WALL{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('circuits.list') }}">&larr; Tutti i circuiti</a>
+</div>
+
+<div class="circuit-detail-grid">
+  <!-- Info card -->
+  <div class="card">
+    <h2 style="font-size:1.6rem;margin-bottom:0.25rem;">{{ circuit.name }}</h2>
+    <p style="color:var(--text-muted);margin-bottom:1.5rem;">{{ circuit.country }}</p>
+
+    <div class="circuit-stat-list">
+      <div class="circuit-stat">
+        <span>Lunghezza</span>
+        <strong>{{ circuit.length_km }} km</strong>
+      </div>
+      <div class="circuit-stat">
+        <span>Numero di curve</span>
+        <strong>{{ circuit.num_curves }}</strong>
+      </div>
+      {% if circuit.lap_record %}
+      <div class="circuit-stat">
+        <span>Record sul giro</span>
+        <strong>{{ circuit.lap_record }}</strong>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+    <div class="actions" style="margin-top:1.5rem;flex-wrap:wrap;">
+      <a href="{{ url_for('posts.list') }}?circuit_id={{ circuit.id }}"
+         class="btn btn-secondary btn-sm">Post del team</a>
+      <a href="{{ url_for('setup.list') }}?circuit_id={{ circuit.id }}"
+         class="btn btn-secondary btn-sm">Setup</a>
+      <a href="{{ url_for('strategy.list') }}?circuit_id={{ circuit.id }}"
+         class="btn btn-secondary btn-sm">Strategie</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Layout image card -->
+  <div class="card">
+    <h3 style="margin-bottom:1rem;">Layout del tracciato</h3>
+    {% if circuit.layout_image %}
+    <img src="{{ url_for('static', filename=circuit.layout_image) }}"
+         alt="Layout {{ circuit.name }}" class="circuit-layout-img">
+    {% else %}
+    <div class="circuit-img-placeholder">
+      <p>Nessun layout disponibile</p>
+    </div>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.is_admin() %}
+    <form method="POST"
+          action="{{ url_for('circuits.upload_image', circuit_id=circuit.id) }}"
+          enctype="multipart/form-data"
+          style="margin-top:1rem;">
+      <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <input type="file" name="layout_image"
+               accept=".png,.jpg,.jpeg,.webp,.svg" style="flex:1;min-width:0;">
+        <button type="submit" class="btn btn-secondary btn-sm">
+          {% if circuit.layout_image %}Sostituisci{% else %}Carica layout{% endif %}
+        </button>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Video section -->
+<div class="card" style="margin-top:0;">
+  <h3 style="margin-bottom:0.5rem;">Video</h3>
+  <p style="color:var(--text-muted);font-size:0.875rem;">
+    I video saranno disponibili in una prossima versione. I file video vanno inseriti nella cartella
+    <code>app/static/videos/</code>.
+  </p>
+</div>
+{% endblock %}

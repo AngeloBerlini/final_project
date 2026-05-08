@@ -217,7 +217,9 @@ Esempi di extend (comportamenti opzionali):
 
 ---
 
-## 8. Gantt 
+## 8. Gantt
+
+
 
 ```mermaid
 gantt
@@ -236,3 +238,172 @@ gantt
     section Rifinitura
     Revisione finale e consegna      :c1, after b6, 2d
 ```
+
+---
+
+## 9. Entità e Relazioni (Schema ER)
+
+Lo schema ER descrive le entità del sistema e le relazioni tra di esse.
+
+```mermaid
+erDiagram
+    TEAM {
+        int id PK
+        string name
+        string invite_code
+        datetime created_at
+    }
+    USER {
+        int id PK
+        string username
+        string email
+        string password_hash
+        string role
+        int team_id FK
+        datetime created_at
+    }
+    CIRCUIT {
+        int id PK
+        string name
+        string country
+        float length_km
+        int num_curves
+        string lap_record
+        string layout_image
+    }
+    POST {
+        int id PK
+        string title
+        text body
+        string category
+        int circuit_id FK
+        int team_id FK
+        int author_id FK
+        datetime created_at
+        datetime updated_at
+    }
+    COMMENT {
+        int id PK
+        text body
+        int post_id FK
+        int author_id FK
+        datetime created_at
+    }
+    MEDIA {
+        int id PK
+        string filename
+        string original_name
+        string file_type
+        int post_id FK
+        int uploaded_by FK
+        datetime created_at
+    }
+
+    TEAM ||--o{ USER : "ha"
+    TEAM ||--o{ POST : "possiede"
+    USER ||--o{ POST : "crea"
+    USER ||--o{ COMMENT : "scrive"
+    USER ||--o{ MEDIA : "carica"
+    CIRCUIT ||--o{ POST : "referenziato in"
+    POST ||--o{ COMMENT : "riceve"
+    POST ||--o{ MEDIA : "contiene"
+```
+
+### Descrizione delle relazioni principali
+
+| Relazione | Cardinalità | Descrizione |
+|---|---|---|
+| TEAM – USER | 1 a molti | Un team ha molti membri; ogni utente appartiene a un solo team |
+| TEAM – POST | 1 a molti | Un team possiede molti post; ogni post è di un solo team |
+| USER – POST | 1 a molti | Un utente crea molti post; ogni post ha un solo autore |
+| CIRCUIT – POST | 1 a molti | Un circuito è associato a molti post; ogni post riferisce un solo circuito |
+| POST – COMMENT | 1 a molti | Un post riceve molti commenti; ogni commento appartiene a un solo post |
+| POST – MEDIA | 1 a molti | Un post contiene molti file media; ogni file è allegato a un solo post |
+| USER – COMMENT | 1 a molti | Un utente scrive molti commenti; ogni commento ha un solo autore |
+| USER – MEDIA | 1 a molti | Un utente carica molti file; ogni file ha un solo caricante |
+
+---
+
+## 10. Diagramma UML delle Classi
+
+Il diagramma UML mostra le classi del dominio con attributi, metodi e relazioni.
+
+```mermaid
+classDiagram
+    class Team {
+        +int id
+        +str name
+        +str invite_code
+        +datetime created_at
+        +regenerate_invite_code()
+    }
+
+    class User {
+        +int id
+        +str username
+        +str email
+        +str password_hash
+        +str role
+        +int team_id
+        +datetime created_at
+        +set_password(password)
+        +check_password(password) bool
+        +is_admin() bool
+    }
+
+    class Circuit {
+        +int id
+        +str name
+        +str country
+        +float length_km
+        +int num_curves
+        +str lap_record
+        +str layout_image
+    }
+
+    class Post {
+        +int id
+        +str title
+        +str body
+        +str category
+        +int circuit_id
+        +int team_id
+        +int author_id
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Comment {
+        +int id
+        +str body
+        +int post_id
+        +int author_id
+        +datetime created_at
+    }
+
+    class Media {
+        +int id
+        +str filename
+        +str original_name
+        +str file_type
+        +int post_id
+        +int uploaded_by
+        +datetime created_at
+    }
+
+    Team "1" --> "*" User : ha
+    Team "1" --> "*" Post : possiede
+    User "1" --> "*" Post : crea
+    User "1" --> "*" Comment : scrive
+    User "1" --> "*" Media : carica
+    Circuit "1" --> "*" Post : referenziato in
+    Post "1" --> "*" Comment : riceve
+    Post "1" --> "*" Media : contiene
+```
+
+### Note di progettazione
+
+- `User.role` è `'admin'` o `'member'`; il primo utente che si registra in un team diventa automaticamente admin.
+- `Post.category` è un enum applicativo: `telemetria`, `strategia`, `setup`, `analisi`.
+- `Media.filename` è il nome fisico del file (UUID) sul server; `original_name` è il nome originale mostrato all'utente.
+- `Team.invite_code` è una stringa hex casuale (16 caratteri); può essere rigenerata dall'admin.

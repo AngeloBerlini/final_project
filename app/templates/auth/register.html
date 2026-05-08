@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Registrazione – PIT WALL{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+  <h1>Registrazione</h1>
+  <div class="card">
+    <form method="POST" action="{{ url_for('auth.register') }}" id="reg-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required minlength="6">
+      </div>
+
+      <div class="toggle-row">
+        <button type="button" class="btn btn-secondary toggle-btn active" data-action="join"
+                onclick="setAction('join')">Unisciti a un team</button>
+        <button type="button" class="btn btn-secondary toggle-btn" data-action="create"
+                onclick="setAction('create')">Crea nuovo team</button>
+      </div>
+
+      <div id="join-fields">
+        <div class="form-group">
+          <label for="invite_code">Codice invito</label>
+          <input type="text" id="invite_code" name="invite_code" placeholder="es. a1b2c3d4e5f6g7h8">
+        </div>
+      </div>
+
+      <div id="create-fields" style="display:none">
+        <div class="form-group">
+          <label for="team_name">Nome del team</label>
+          <input type="text" id="team_name" name="team_name" placeholder="es. Scuderia Berlini">
+        </div>
+      </div>
+
+      <input type="hidden" name="action" id="action-field" value="join">
+      <button type="submit" class="btn btn-primary" style="width:100%">Registrati</button>
+    </form>
+  </div>
+  <p class="auth-link">Hai già un account? <a href="{{ url_for('auth.login') }}">Accedi</a></p>
+</div>
+
+<script>
+function setAction(action) {
+  document.getElementById('action-field').value = action;
+  document.getElementById('join-fields').style.display = action === 'join' ? 'block' : 'none';
+  document.getElementById('create-fields').style.display = action === 'create' ? 'block' : 'none';
+  document.querySelectorAll('.toggle-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.action === action);
+  });
+}
+</script>
+{% endblock %}

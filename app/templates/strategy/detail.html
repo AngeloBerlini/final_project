@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}{{ strategy.title }} – PIT WALL{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('strategy.list') }}">&larr; Lista strategie</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="post-title">{{ strategy.title }}</h2>
+    <span class="badge" style="background:rgba(255,255,255,.08);color:var(--text-muted);border-color:var(--border);">Strategia</span>
+  </div>
+  <div class="card-meta" style="margin-bottom:1rem;">
+    {{ strategy.circuit.name }} &bull; {{ strategy.author.username }} &bull;
+    {{ strategy.created_at.strftime('%d %b %Y, %H:%M') }} &bull;
+    <strong>{{ total_laps }} giri totali</strong>
+  </div>
+  {% if current_user.id == strategy.author_id or current_user.is_admin() %}
+  <div class="actions" style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('strategy.edit', strategy_id=strategy.id) }}" class="btn btn-secondary btn-sm">Modifica</a>
+    <form method="POST" action="{{ url_for('strategy.delete', strategy_id=strategy.id) }}"
+          onsubmit="return confirm('Eliminare questa strategia?')">
+      <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+    </form>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Stint table -->
+<div class="card">
+  <h3 class="section-title" style="margin-bottom:1rem;">Piano stint</h3>
+
+  <!-- Visual bar -->
+  <div class="strategy-bar">
+    {% for stint in stints %}
+    <div class="strategy-bar-segment tire-{{ stint.tire_compound|replace(' ', '-') }}"
+         style="flex: {{ stint.laps }}"
+         title="Stint {{ stint.position }} – {{ stint.tire_compound|capitalize }} – {{ stint.laps }} giri">
+      {{ stint.laps }}g
+    </div>
+    {% endfor %}
+  </div>
+
+  <table style="margin-top:1.25rem;">
+    <thead>
+      <tr>
+        <th>Stint</th>
+        <th>Mescola</th>
+        <th>Giri</th>
+        <th>% gara</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for stint in stints %}
+      <tr>
+        <td><strong>{{ stint.position }}</strong></td>
+        <td>
+          <span class="tire-badge tire-{{ stint.tire_compound|replace(' ', '-') }}">
+            {{ stint.tire_compound|capitalize }}
+          </span>
+        </td>
+        <td>{{ stint.laps }}</td>
+        <td>{{ '%.0f' % (stint.laps / total_laps * 100) if total_laps else '–' }}%</td>
+      </tr>
+      {% endfor %}
+      <tr style="border-top:2px solid var(--border);font-weight:700;">
+        <td colspan="2">Totale</td>
+        <td>{{ total_laps }}</td>
+        <td>100%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+{% if strategy.note %}
+<div class="card">
+  <h3 class="section-title">Note</h3>
+  <div class="detail-body">{{ strategy.note }}</div>
+</div>
+{% endif %}
+{% endblock %}

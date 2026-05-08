@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PIT WALL{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="navbar">
+    <a href="{{ url_for('index') }}" class="brand">PIT WALL</a>
+    <nav>
+      <a href="{{ url_for('circuits.list') }}">Circuiti</a>
+      {% if current_user.is_authenticated %}
+      <a href="{{ url_for('posts.list') }}">Post</a>
+      <a href="{{ url_for('setup.list') }}">Setup</a>
+      <a href="{{ url_for('strategy.list') }}">Strategia</a>
+      <a href="{{ url_for('profile.index') }}">{{ current_user.username }}</a>
+      {% if current_user.is_admin() %}
+      <a href="{{ url_for('team.manage') }}">Team</a>
+      {% endif %}
+      <a href="{{ url_for('auth.logout') }}" class="nav-logout">Esci</a>
+      {% else %}
+      <a href="{{ url_for('auth.login') }}">Login</a>
+      <a href="{{ url_for('auth.register') }}" class="nav-cta">Registrati</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>PIT WALL &mdash; Formula 1 Team Data Platform</p>
+  </footer>
+</body>
+</html>

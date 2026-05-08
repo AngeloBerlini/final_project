@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} – PIT WALL{% endblock %}
+{% block content %}
+<div class="breadcrumb">
+  <a href="{{ url_for('posts.list') }}">&larr; Lista post</a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="post-title">{{ post.title }}</h2>
+    <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
+  </div>
+  <div class="card-meta" style="margin-bottom:1rem;">
+    <span>{{ post.circuit.name }}</span> &bull;
+    <span>{{ post.author.username }}</span> &bull;
+    <span>{{ post.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+    {% if post.updated_at and post.updated_at != post.created_at %}
+    &bull; <span style="font-style:italic;">modificato il {{ post.updated_at.strftime('%d %b %Y') }}</span>
+    {% endif %}
+  </div>
+
+  {% if current_user.id == post.author_id or current_user.is_admin() %}
+  <div class="actions" style="margin-bottom:1.5rem;">
+    <a href="{{ url_for('posts.edit', post_id=post.id) }}" class="btn btn-secondary btn-sm">Modifica</a>
+    <form method="POST" action="{{ url_for('posts.delete', post_id=post.id) }}" style="display:inline;"
+          onsubmit="return confirm('Eliminare questo post? L\'azione è irreversibile.')">
+      <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <div class="detail-body">{{ post.body }}</div>
+</div>
+
+<!-- Media -->
+{% if media_files or (current_user.id == post.author_id or current_user.is_admin()) %}
+<div class="card">
+  <h3 style="margin-bottom:1rem;">
+    File allegati {% if media_files %}({{ media_files|length }}){% endif %}
+  </h3>
+  {% if media_files %}
+  <div class="media-list">
+    {% for m in media_files %}
+    <div class="media-item">
+      <span class="media-icon">
+        {% if m.file_type == 'pdf' %}📄
+        {% elif m.file_type == 'csv' %}📊
+        {% else %}🖼️{% endif %}
+      </span>
+      <a href="{{ url_for('media.download', media_id=m.id) }}">{{ m.original_name }}</a>
+      <span class="media-type">{{ m.file_type|upper }}</span>
+      {% if current_user.id == post.author_id or current_user.is_admin() %}
+      <form method="POST" action="{{ url_for('media.delete', media_id=m.id) }}" style="margin-left:auto;"
+            onsubmit="return confirm('Eliminare il file {{ m.original_name }}?')">
+        <button type="submit" class="btn btn-danger btn-sm">&times;</button>
+      </form>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p style="color:var(--text-muted);font-size:0.9rem;">Nessun file allegato.</p>
+  {% endif %}
+
+  {% if current_user.id == post.author_id or current_user.is_admin() %}
+  <details style="margin-top:1.25rem;">
+    <summary class="upload-summary">+ Carica nuovi file</summary>
+    <form method="POST" action="{{ url_for('posts.add_media', post_id=post.id) }}"
+          enctype="multipart/form-data" style="margin-top:0.75rem;">
+      <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+        <input type="file" name="media" multiple accept=".png,.jpg,.jpeg,.pdf,.csv" style="flex:1;min-width:0;">
+        <button type="submit" class="btn btn-secondary btn-sm">Carica</button>
+      </div>
+    </form>
+  </details>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Comments -->
+<div class="comments-section">
+  <h3 style="margin-bottom:1rem;">Commenti ({{ comments|length }})</h3>
+
+  {% if comments %}
+  {% for comment in comments %}
+  <div class="comment">
+    <div class="comment-header">
+      <span class="comment-author">{{ comment.author.username }}</span>
+      <div style="display:flex;gap:0.75rem;align-items:center;">
+        <span>{{ comment.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+        {% if current_user.id == comment.author_id or current_user.is_admin() %}
+        <form method="POST" action="{{ url_for('comments.delete', comment_id=comment.id) }}"
+              onsubmit="return confirm('Eliminare questo commento?')">
+          <button type="submit" class="btn btn-danger btn-sm">&times;</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+    <div class="comment-body">{{ comment.body }}</div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">
+    Nessun commento ancora. Sii il primo a commentare.
+  </p>
+  {% endif %}
+
+  <div class="card" style="margin-top:1rem;">
+    <form method="POST" action="{{ url_for('comments.create') }}">
+      <input type="hidden" name="post_id" value="{{ post.id }}">
+      <div class="form-group">
+        <label for="body">Aggiungi un commento</label>
+        <textarea id="body" name="body" rows="3"
+                  placeholder="Analisi, osservazioni, domande..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm">Pubblica commento</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
