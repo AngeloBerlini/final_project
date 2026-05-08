@@ -158,6 +158,36 @@ class Strategy(db.Model):
                              order_by='StrategyStint.position')
 
 
+class Telemetry(db.Model):
+    __tablename__ = 'telemetry'
+    id = db.Column(db.Integer, primary_key=True)
+    setup_id = db.Column(db.Integer, db.ForeignKey('setup.id'), nullable=False)
+    circuit_id = db.Column(db.Integer, db.ForeignKey('circuit.id'), nullable=False)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Dati telemetrici (JSON per flessibilità)
+    velocita = db.Column(db.JSON)  # lista di velocità (km/h)
+    rpm = db.Column(db.JSON)  # lista di RPM
+    temperatura_freni = db.Column(db.JSON)  # lista di temperature (°C)
+    temperatura_gomme = db.Column(db.JSON)  # lista di temperature gomme
+    accelerazione = db.Column(db.JSON)  # lista di accelerazioni (G)
+    gas = db.Column(db.JSON)  # posizione gas (0-100%)
+    freno = db.Column(db.JSON)  # pressione freno (0-100%)
+    sterzo = db.Column(db.JSON)  # angolo sterzo (gradi)
+    
+    # Info aggiuntive
+    descrizione = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    setup = db.relationship('Setup', backref=db.backref('telemetry_data', lazy='dynamic'))
+    circuit = db.relationship('Circuit', backref=db.backref('telemetry_records', lazy='dynamic'))
+    team_rel = db.relationship('Team', foreign_keys=[team_id],
+                               backref=db.backref('telemetry_records', lazy='dynamic'))
+    author = db.relationship('User', foreign_keys=[author_id],
+                             backref=db.backref('telemetry_records', lazy='dynamic'))
+
+
 class StrategyStint(db.Model):
     __tablename__ = 'strategy_stint'
     id = db.Column(db.Integer, primary_key=True)

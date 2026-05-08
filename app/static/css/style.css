@@ -193,6 +193,7 @@ select option { background: var(--surface2); }
 .circuit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
 .circuit-card { display: block; color: var(--text); }
 .circuit-card:hover { color: var(--text); border-color: var(--accent); }
+.circuit-layout-preview { width: 100%; height: 160px; object-fit: cover; object-position: center; border-radius: 4px 4px 0 0; background: var(--surface2); display: block; }
 .circuit-stat { display: flex; justify-content: space-between; padding: 0.35rem 0; border-bottom: 1px solid var(--border); font-size: 0.875rem; }
 .circuit-stat:last-child { border-bottom: none; }
 .circuit-stat span { color: var(--text-muted); }

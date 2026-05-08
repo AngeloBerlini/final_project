@@ -11,6 +11,10 @@
 <div class="circuit-grid">
   {% for circuit in circuits %}
   <a href="{{ url_for('circuits.detail', circuit_id=circuit.id) }}" class="card circuit-card">
+    {% if circuit.layout_image %}
+    <img src="{{ url_for('static', filename=circuit.layout_image) }}" 
+         alt="Layout {{ circuit.name }}" class="circuit-layout-preview">
+    {% endif %}
     <div class="card-header">
       <span class="card-title">{{ circuit.name }}</span>
     </div>

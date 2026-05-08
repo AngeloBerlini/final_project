@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Telemetria – PIT WALL{% endblock %}
+{% block content %}
+<div class="container">
+  <h1>Telemetria: {{ setup.title }}</h1>
+  <p class="text-muted">Circuito: <strong>{{ setup.circuit.name }}</strong></p>
+
+  <div style="margin-bottom: 20px;">
+    <a href="{{ url_for('telemetry.upload_telemetry', setup_id=setup.id) }}" class="btn btn-primary">
+      📊 Carica Nuovi Dati Telemetrici
+    </a>
+    <a href="{{ url_for('setup.detail', setup_id=setup.id) }}" class="btn btn-secondary">Torna al Setup</a>
+  </div>
+
+  {% if telemetry_records %}
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Autore</th>
+          <th>Descrizione</th>
+          <th>Dati Disponibili</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in telemetry_records %}
+        <tr>
+          <td>{{ record.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>{{ record.author.username }}</td>
+          <td>{{ record.descrizione[:50] if record.descrizione else '—' }}</td>
+          <td>
+            {% set data_available = [] %}
+            {% if record.velocita %}{% set _ = data_available.append('📈 Velocità') %}{% endif %}
+            {% if record.rpm %}{% set _ = data_available.append('⚙️ RPM') %}{% endif %}
+            {% if record.temperatura_freni %}{% set _ = data_available.append('🔥 Freni') %}{% endif %}
+            {% if record.temperatura_gomme %}{% set _ = data_available.append('🛞 Gomme') %}{% endif %}
+            {{ data_available | join(', ') }}
+          </td>
+          <td>
+            <a href="{{ url_for('telemetry.view_telemetry', telemetry_id=record.id) }}" class="btn btn-sm btn-info">Visualizza</a>
+            {% if current_user.is_admin() or current_user.id == record.author_id %}
+            <form method="POST" action="{{ url_for('telemetry.delete_telemetry', telemetry_id=record.id) }}" style="display:inline;">
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Sei sicuro?')">Elimina</button>
+            </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    <strong>Nessun dato telemetrico caricato ancora.</strong> 
+    <a href="{{ url_for('telemetry.upload_telemetry', setup_id=setup.id) }}">Carica il primo record →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
