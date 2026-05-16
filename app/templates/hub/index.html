@@ -30,49 +30,257 @@
   {% for item in items %}
   {% set obj = item.obj %}
 
+  {# ── ANALISI ── #}
   {% if item.type == 'post' %}
-  <a href="{{ url_for('posts.detail', post_id=obj.id) }}" class="card post-card">
-    <div class="card-header">
-      <span class="card-title">{{ obj.title }}</span>
-      <span class="badge badge-analisi">Analisi</span>
-    </div>
-    <div class="card-meta">
-      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
-      {{ obj.created_at.strftime('%d %b %Y') }} &bull;
-      {{ obj.comments.count() }} commenti &bull; {{ obj.media_files.count() }} file
-    </div>
-  </a>
+  <details class="card post-card hub-details">
+    <summary class="hub-summary">
+      <div class="card-header">
+        <span class="card-title">{{ obj.title }}</span>
+        <span class="badge badge-analisi">Analisi</span>
+      </div>
+      <div class="card-meta">
+        {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+        {{ obj.created_at.strftime('%d %b %Y') }} &bull;
+        {{ obj.comments.count() }} commenti &bull; {{ obj.media_files.count() }} file
+      </div>
+    </summary>
 
+    <div class="hub-detail-body">
+      {% if current_user.id == obj.author_id or current_user.is_admin() %}
+      <div class="actions" style="margin-bottom:1rem;">
+        <a href="{{ url_for('posts.edit', post_id=obj.id) }}" class="btn btn-secondary btn-sm">Modifica</a>
+        <form method="POST" action="{{ url_for('posts.delete', post_id=obj.id) }}"
+              onsubmit="return confirm('Eliminare questa analisi?')">
+          <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="detail-body" style="margin-bottom:1.25rem;">{{ obj.body }}</div>
+
+      {# Media #}
+      {% set media_files = obj.media_files.all() %}
+      {% if media_files or current_user.id == obj.author_id or current_user.is_admin() %}
+      <div style="margin-bottom:1.25rem;">
+        <h4 style="margin-bottom:0.75rem;">File allegati{% if media_files %} ({{ media_files|length }}){% endif %}</h4>
+        {% if media_files %}
+        <div class="media-list">
+          {% for m in media_files %}
+          <div class="media-item">
+            <span class="media-icon">{% if m.file_type == 'pdf' %}📄{% elif m.file_type == 'csv' %}📊{% else %}🖼️{% endif %}</span>
+            <a href="{{ url_for('media.download', media_id=m.id) }}">{{ m.original_name }}</a>
+            <span class="media-type">{{ m.file_type|upper }}</span>
+            {% if current_user.id == obj.author_id or current_user.is_admin() %}
+            <form method="POST" action="{{ url_for('media.delete', media_id=m.id) }}" style="margin-left:auto;"
+                  onsubmit="return confirm('Eliminare {{ m.original_name }}?')">
+              <button type="submit" class="btn btn-danger btn-sm">&times;</button>
+            </form>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:0.85rem;">Nessun file allegato.</p>
+        {% endif %}
+        {% if current_user.id == obj.author_id or current_user.is_admin() %}
+        <form method="POST" action="{{ url_for('posts.add_media', post_id=obj.id) }}"
+              enctype="multipart/form-data" style="margin-top:0.75rem;display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <input type="file" name="media" multiple accept=".png,.jpg,.jpeg,.pdf,.csv" style="flex:1;min-width:0;">
+          <button type="submit" class="btn btn-secondary btn-sm">Carica</button>
+        </form>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {# Commenti #}
+      <div class="comments-section" style="margin-top:0;">
+        <h4 style="margin-bottom:0.75rem;">Commenti ({{ obj.comments.count() }})</h4>
+        {% for comment in obj.comments.order_by('created_at').all() %}
+        <div class="comment">
+          <div class="comment-header">
+            <span class="comment-author">{{ comment.author.username }}</span>
+            <div style="display:flex;gap:0.75rem;align-items:center;">
+              <span>{{ comment.created_at.strftime('%d %b %Y, %H:%M') }}</span>
+              {% if current_user.id == comment.author_id or current_user.is_admin() %}
+              <form method="POST" action="{{ url_for('comments.delete', comment_id=comment.id) }}"
+                    onsubmit="return confirm('Eliminare questo commento?')">
+                <button type="submit" class="btn btn-danger btn-sm">&times;</button>
+              </form>
+              {% endif %}
+            </div>
+          </div>
+          <div class="comment-body">{{ comment.body }}</div>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:0.75rem;">Nessun commento ancora.</p>
+        {% endfor %}
+
+        <form method="POST" action="{{ url_for('comments.create') }}" style="margin-top:0.75rem;">
+          <input type="hidden" name="post_id" value="{{ obj.id }}">
+          <div class="form-group" style="margin-bottom:0.5rem;">
+            <textarea name="body" rows="2" placeholder="Aggiungi un commento..." required
+                      style="font-size:0.85rem;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Pubblica</button>
+        </form>
+      </div>
+    </div>
+  </details>
+
+  {# ── SETUP ── #}
   {% elif item.type == 'setup' %}
-  <a href="{{ url_for('setup.detail', setup_id=obj.id) }}" class="card post-card">
-    <div class="card-header">
-      <span class="card-title">{{ obj.title }}</span>
-      <span class="badge badge-setup">Setup</span>
-    </div>
-    <div class="card-meta">
-      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
-      {{ obj.created_at.strftime('%d %b %Y') }}
-    </div>
-  </a>
+  <details class="card post-card hub-details">
+    <summary class="hub-summary">
+      <div class="card-header">
+        <span class="card-title">{{ obj.title }}</span>
+        <span class="badge badge-setup">Setup</span>
+      </div>
+      <div class="card-meta">
+        {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+        {{ obj.created_at.strftime('%d %b %Y') }}
+      </div>
+    </summary>
 
+    <div class="hub-detail-body">
+      {% if current_user.id == obj.author_id or current_user.is_admin() %}
+      <div class="actions" style="margin-bottom:1rem;">
+        <a href="{{ url_for('setup.edit', setup_id=obj.id) }}" class="btn btn-secondary btn-sm">Modifica</a>
+        <form method="POST" action="{{ url_for('setup.delete', setup_id=obj.id) }}"
+              onsubmit="return confirm('Eliminare questo setup?')">
+          <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="setup-detail-grid">
+        {% if obj.ala_anteriore is not none or obj.ala_posteriore is not none %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Aerodinamica</p>
+          {% if obj.ala_anteriore is not none %}<div class="setup-row"><span class="setup-label">Ala anteriore</span><span class="setup-value">{{ obj.ala_anteriore }} <small>mm</small></span></div>{% endif %}
+          {% if obj.ala_posteriore is not none %}<div class="setup-row"><span class="setup-label">Ala posteriore</span><span class="setup-value">{{ obj.ala_posteriore }} <small>mm</small></span></div>{% endif %}
+        </div>
+        {% endif %}
+        {% if obj.differenziale is not none %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Differenziale</p>
+          <div class="setup-row"><span class="setup-label">Uscita curva</span><span class="setup-value">{{ obj.differenziale }} <small>%</small></span></div>
+        </div>
+        {% endif %}
+        {% if obj.camber_ant is not none or obj.camber_post is not none or obj.toe_ant is not none or obj.toe_post is not none %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Geometria sospensioni</p>
+          {% if obj.camber_ant is not none %}<div class="setup-row"><span class="setup-label">Campanatura ant.</span><span class="setup-value">{{ obj.camber_ant }} <small>°</small></span></div>{% endif %}
+          {% if obj.camber_post is not none %}<div class="setup-row"><span class="setup-label">Campanatura post.</span><span class="setup-value">{{ obj.camber_post }} <small>°</small></span></div>{% endif %}
+          {% if obj.toe_ant is not none %}<div class="setup-row"><span class="setup-label">Divergenza ant.</span><span class="setup-value">{{ obj.toe_ant }} <small>mm</small></span></div>{% endif %}
+          {% if obj.toe_post is not none %}<div class="setup-row"><span class="setup-label">Convergenza post.</span><span class="setup-value">{{ obj.toe_post }} <small>mm</small></span></div>{% endif %}
+        </div>
+        {% endif %}
+        {% if obj.sospensioni_ant or obj.sospensioni_post %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Sospensioni</p>
+          {% if obj.sospensioni_ant %}<div class="setup-row"><span class="setup-label">Anteriore</span><span class="setup-value">{{ obj.sospensioni_ant }}</span></div>{% endif %}
+          {% if obj.sospensioni_post %}<div class="setup-row"><span class="setup-label">Posteriore</span><span class="setup-value">{{ obj.sospensioni_post }}</span></div>{% endif %}
+        </div>
+        {% endif %}
+        {% if obj.bilanciamento_freni is not none %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Freni</p>
+          <div class="setup-row"><span class="setup-label">Bilanciamento</span><span class="setup-value">{{ obj.bilanciamento_freni }} <small>%</small></span></div>
+        </div>
+        {% endif %}
+        {% if obj.pressione_ant_sx is not none %}
+        <div>
+          <p class="section-title" style="font-size:0.75rem;">Pressioni pneumatici</p>
+          <div class="tires-display" style="grid-template-columns:repeat(2,1fr);gap:0.4rem;">
+            <div class="tire-corner-display"><span class="tire-pos">Ant. SX</span><span class="tire-psi">{{ obj.pressione_ant_sx }} <small>psi</small></span></div>
+            <div class="tire-corner-display"><span class="tire-pos">Ant. DX</span><span class="tire-psi">{{ obj.pressione_ant_dx }} <small>psi</small></span></div>
+            <div class="tire-corner-display"><span class="tire-pos">Post. SX</span><span class="tire-psi">{{ obj.pressione_post_sx }} <small>psi</small></span></div>
+            <div class="tire-corner-display"><span class="tire-pos">Post. DX</span><span class="tire-psi">{{ obj.pressione_post_dx }} <small>psi</small></span></div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if obj.note %}
+      <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+        <p class="section-title" style="font-size:0.75rem;">Note</p>
+        <div class="detail-body">{{ obj.note }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </details>
+
+  {# ── STRATEGIA ── #}
   {% elif item.type == 'strategy' %}
-  <a href="{{ url_for('strategy.detail', strategy_id=obj.id) }}" class="card post-card">
-    <div class="card-header">
-      <span class="card-title">{{ obj.title }}</span>
-      <span class="badge badge-strategia">Strategia</span>
+  {% set stints = obj.stints.all() %}
+  {% set total_laps = stints | sum(attribute='laps') %}
+  <details class="card post-card hub-details">
+    <summary class="hub-summary">
+      <div class="card-header">
+        <span class="card-title">{{ obj.title }}</span>
+        <span class="badge badge-strategia">Strategia</span>
+      </div>
+      <div class="card-meta" style="margin-bottom:0.5rem;">
+        {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+        {{ obj.created_at.strftime('%d %b %Y') }} &bull;
+        {{ stints|length }} stint &bull; {{ total_laps }} giri
+      </div>
+      <div class="stint-preview">
+        {% for stint in stints %}
+        <span class="tire-badge tire-{{ stint.tire_compound|replace(' ', '-') }}"
+              title="Stint {{ stint.position }}: {{ stint.laps }} giri">{{ stint.laps }}g</span>
+        {% endfor %}
+      </div>
+    </summary>
+
+    <div class="hub-detail-body">
+      {% if current_user.id == obj.author_id or current_user.is_admin() %}
+      <div class="actions" style="margin-bottom:1rem;">
+        <a href="{{ url_for('strategy.edit', strategy_id=obj.id) }}" class="btn btn-secondary btn-sm">Modifica</a>
+        <form method="POST" action="{{ url_for('strategy.delete', strategy_id=obj.id) }}"
+              onsubmit="return confirm('Eliminare questa strategia?')">
+          <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+        </form>
+      </div>
+      {% endif %}
+
+      <div class="strategy-bar" style="margin-bottom:1rem;">
+        {% for stint in stints %}
+        <div class="strategy-bar-segment tire-{{ stint.tire_compound|replace(' ', '-') }}"
+             style="flex: {{ stint.laps }}"
+             title="Stint {{ stint.position }} – {{ stint.tire_compound|capitalize }} – {{ stint.laps }} giri">
+          {{ stint.laps }}g
+        </div>
+        {% endfor %}
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Stint</th><th>Mescola</th><th>Giri</th><th>% gara</th></tr>
+        </thead>
+        <tbody>
+          {% for stint in stints %}
+          <tr>
+            <td><strong>{{ stint.position }}</strong></td>
+            <td><span class="tire-badge tire-{{ stint.tire_compound|replace(' ', '-') }}">{{ stint.tire_compound|capitalize }}</span></td>
+            <td>{{ stint.laps }}</td>
+            <td>{{ '%.0f' % (stint.laps / total_laps * 100) if total_laps else '–' }}%</td>
+          </tr>
+          {% endfor %}
+          <tr style="border-top:2px solid var(--border);font-weight:700;">
+            <td colspan="2">Totale</td><td>{{ total_laps }}</td><td>100%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      {% if obj.note %}
+      <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+        <p class="section-title" style="font-size:0.75rem;">Note</p>
+        <div class="detail-body">{{ obj.note }}</div>
+      </div>
+      {% endif %}
     </div>
-    <div class="card-meta" style="margin-bottom:0.5rem;">
-      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
-      {{ obj.created_at.strftime('%d %b %Y') }} &bull;
-      {{ obj.stints.count() }} stint
-    </div>
-    <div class="stint-preview">
-      {% for stint in obj.stints.all() %}
-      <span class="tire-badge tire-{{ stint.tire_compound|replace(' ', '-') }}"
-            title="Stint {{ stint.position }}: {{ stint.laps }} giri">{{ stint.laps }}g</span>
-      {% endfor %}
-    </div>
-  </a>
+  </details>
   {% endif %}
 
   {% endfor %}

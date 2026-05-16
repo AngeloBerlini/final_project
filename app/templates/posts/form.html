@@ -45,8 +45,7 @@
       <button type="submit" class="btn btn-primary">
         {% if post %}Aggiorna{% else %}Pubblica{% endif %}
       </button>
-      <a href="{{ url_for('posts.detail', post_id=post.id) if post else url_for('hub.index') }}"
-         class="btn btn-secondary">Annulla</a>
+      <a href="{{ url_for('hub.index') }}" class="btn btn-secondary">Annulla</a>
     </div>
   </form>
 </div>

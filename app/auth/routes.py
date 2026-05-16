@@ -70,7 +70,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('posts.list'))
+            return redirect(next_page or url_for('hub.index'))
         flash('Credenziali non valide.', 'danger')
     return render_template('auth/login.html')
 

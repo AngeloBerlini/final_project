@@ -189,6 +189,15 @@ select option { background: var(--surface2); }
 .post-card { display: block; color: var(--text); cursor: pointer; }
 .post-card:hover { color: var(--text); border-color: var(--accent); }
 
+/* Hub accordion */
+.hub-details { cursor: default; }
+.hub-details[open] { border-color: var(--accent); }
+.hub-summary { cursor: pointer; list-style: none; padding: 0; }
+.hub-summary::-webkit-details-marker { display: none; }
+.hub-summary::before { content: '▶'; font-size: 0.65rem; color: var(--text-muted); margin-right: 0.5rem; vertical-align: middle; }
+.hub-details[open] .hub-summary::before { content: '▼'; }
+.hub-detail-body { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
 /* ── Circuit grid ── */
 .circuit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
 .circuit-card { display: block; color: var(--text); }

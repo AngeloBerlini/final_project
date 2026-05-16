@@ -33,7 +33,7 @@
   <h3 style="margin-bottom:1rem;">Ultimi post</h3>
   {% if posts %}
   {% for post in posts[:10] %}
-  <a href="{{ url_for('posts.detail', post_id=post.id) }}" class="card post-card" style="margin-bottom:0.5rem;">
+  <a href="{{ url_for('hub.index') }}" class="card post-card" style="margin-bottom:0.5rem;">
     <div class="card-header">
       <span>{{ post.title }}</span>
       <span class="badge badge-{{ post.category }}">{{ post.category }}</span>
@@ -46,7 +46,7 @@
   {% if posts|length > 10 %}
   <p style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;">
     e altri {{ posts|length - 10 }} post &mdash;
-    <a href="{{ url_for('posts.list') }}">vedi tutti</a>
+    <a href="{{ url_for('hub.index') }}">vedi tutti</a>
   </p>
   {% endif %}
   {% else %}

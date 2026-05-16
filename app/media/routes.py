@@ -34,4 +34,4 @@ def delete(media_id):
     db.session.delete(media)
     db.session.commit()
     flash('File eliminato.', 'success')
-    return redirect(url_for('posts.detail', post_id=post.id))
+    return redirect(url_for('hub.index'))

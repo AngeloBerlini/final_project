@@ -23,18 +23,6 @@ def _parse_stints(form):
     return stints
 
 
-@strategy_bp.route('/')
-@login_required
-def list():
-    circuit_id = request.args.get('circuit_id', type=int)
-    query = Strategy.query.filter_by(team_id=current_user.team_id)
-    if circuit_id:
-        query = query.filter_by(circuit_id=circuit_id)
-    strategies = query.order_by(Strategy.created_at.desc()).all()
-    circuits = Circuit.query.order_by(Circuit.name).all()
-    return render_template('strategy/list.html', strategies=strategies, circuits=circuits,
-                           selected_circuit=circuit_id)
-
 
 def _circuit_laps_map(circuits):
     return {c.id: c.race_laps for c in circuits if c.race_laps}
@@ -74,22 +62,10 @@ def create():
             db.session.add(StrategyStint(strategy_id=strategy.id, **s))
         db.session.commit()
         flash('Strategia salvata.', 'success')
-        return redirect(url_for('strategy.detail', strategy_id=strategy.id))
+        return redirect(url_for('hub.index'))
     return render_template('strategy/form.html', circuits=circuits, compounds=TIRE_COMPOUNDS,
                            laps_map=laps_map)
 
-
-@strategy_bp.route('/<int:strategy_id>')
-@login_required
-def detail(strategy_id):
-    strategy = Strategy.query.get_or_404(strategy_id)
-    if strategy.team_id != current_user.team_id:
-        abort(403)
-    stints = StrategyStint.query.filter_by(strategy_id=strategy_id)\
-                                .order_by(StrategyStint.position).all()
-    total_laps = sum(s.laps for s in stints)
-    return render_template('strategy/detail.html', strategy=strategy,
-                           stints=stints, total_laps=total_laps)
 
 
 @strategy_bp.route('/<int:strategy_id>/edit', methods=['GET', 'POST'])
@@ -135,7 +111,7 @@ def edit(strategy_id):
             db.session.add(StrategyStint(strategy_id=strategy.id, **s))
         db.session.commit()
         flash('Strategia aggiornata.', 'success')
-        return redirect(url_for('strategy.detail', strategy_id=strategy.id))
+        return redirect(url_for('hub.index'))
     return render_template('strategy/form.html', strategy=strategy, stints=stints,
                            circuits=circuits, compounds=TIRE_COMPOUNDS, laps_map=laps_map)
 
@@ -151,4 +127,4 @@ def delete(strategy_id):
     db.session.delete(strategy)
     db.session.commit()
     flash('Strategia eliminata.', 'success')
-    return redirect(url_for('strategy.list'))
+    return redirect(url_for('hub.index'))

@@ -103,7 +103,7 @@ Il nome *PIT WALL* richiama la zona dei box in Formula 1, dove si trovano ingegn
 7. Gestione del **setup vettura** con i seguenti parametri:
    - Aerodinamica: ala anteriore e posteriore (mm)
    - Differenziale: bloccaggio uscita curva (%)
-   - Geometria sospensioni: camber e toe anteriore/posteriore
+   - Geometria sospensioni: campanatura (ant/post), divergenza anteriore, convergenza posteriore
    - Sospensioni: rigidità anteriore e posteriore (click 1–12)
    - Freni: bilanciamento anteriore (%)
    - Pressioni pneumatici: quattro angoli (psi)

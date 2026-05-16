@@ -85,8 +85,7 @@
     <button type="submit" class="btn btn-primary">
       {% if strategy %}Aggiorna strategia{% else %}Salva strategia{% endif %}
     </button>
-    <a href="{{ url_for('strategy.detail', strategy_id=strategy.id) if strategy else url_for('strategy.list') }}"
-       class="btn btn-secondary">Annulla</a>
+    <a href="{{ url_for('hub.index') }}" class="btn btn-secondary">Annulla</a>
   </div>
 </form>
 

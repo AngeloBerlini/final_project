@@ -17,7 +17,7 @@ def create():
         comment = Comment(body=body, post_id=post_id, author_id=current_user.id)
         db.session.add(comment)
         db.session.commit()
-    return redirect(url_for('posts.detail', post_id=post_id))
+    return redirect(url_for('hub.index'))
 
 
 @comments_bp.route('/<int:comment_id>/delete', methods=['POST'])
@@ -31,4 +31,4 @@ def delete(comment_id):
         abort(403)
     db.session.delete(comment)
     db.session.commit()
-    return redirect(url_for('posts.detail', post_id=post.id))
+    return redirect(url_for('hub.index'))

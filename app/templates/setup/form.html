@@ -83,30 +83,30 @@
     <h3 class="section-title">Geometria sospensioni</h3>
     <div class="setup-grid">
       {{ param_field(
-          'camber_ant', 'Camber anteriore', '°',
+          'camber_ant', 'Campanatura anteriore', '°',
           'Range: −4.5° → −1.5°',
           hint='Più negativo = maggiore contatto gomma in curva. Aumenta l\'usura sulla gomma esterna.',
           value=setup.camber_ant if setup and setup.camber_ant is not none else '',
           placeholder='es. -3.20'
       ) }}
       {{ param_field(
-          'camber_post', 'Camber posteriore', '°',
+          'camber_post', 'Campanatura posteriore', '°',
           'Range: −2.5° → −0.5°',
           hint='Stabilizza il posteriore in curva. Evitare valori troppo negativi per non surriscaldare la gomma.',
           value=setup.camber_post if setup and setup.camber_post is not none else '',
           placeholder='es. -1.50'
       ) }}
       {{ param_field(
-          'toe_ant', 'Toe anteriore', 'mm',
+          'toe_ant', 'Divergenza anteriore', 'mm',
           'Range: −0.5 → +0.5 mm',
-          hint='Toe-out (negativo) = più agilità in inserimento. Toe-in (positivo) = maggiore stabilità.',
+          hint='Negativo = divergenza, più agilità in inserimento. Positivo = convergenza, maggiore stabilità.',
           value=setup.toe_ant if setup and setup.toe_ant is not none else '',
           placeholder='es. 0.10'
       ) }}
       {{ param_field(
-          'toe_post', 'Toe posteriore', 'mm',
+          'toe_post', 'Convergenza posteriore', 'mm',
           'Range: 0 → +0.5 mm',
-          hint='Toe-in posteriore migliora la stabilità in rettilineo. Valori negativi rischiano sovrasterzo.',
+          hint='Convergenza posteriore migliora la stabilità in rettilineo. Valori negativi rischiano sovrasterzo.',
           value=setup.toe_post if setup and setup.toe_post is not none else '',
           placeholder='es. 0.20'
       ) }}
@@ -212,8 +212,7 @@
     <button type="submit" class="btn btn-primary">
       {% if setup %}Aggiorna setup{% else %}Salva setup{% endif %}
     </button>
-    <a href="{{ url_for('setup.detail', setup_id=setup.id) if setup else url_for('hub.index') }}"
-       class="btn btn-secondary">Annulla</a>
+    <a href="{{ url_for('hub.index') }}" class="btn btn-secondary">Annulla</a>
   </div>
 </form>
 {% endblock %}

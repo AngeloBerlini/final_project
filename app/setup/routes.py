@@ -41,18 +41,6 @@ def _parse_setup(form):
     )
 
 
-@setup_bp.route('/')
-@login_required
-def list():
-    circuit_id = request.args.get('circuit_id', type=int)
-    query = Setup.query.filter_by(team_id=current_user.team_id)
-    if circuit_id:
-        query = query.filter_by(circuit_id=circuit_id)
-    setups = query.order_by(Setup.created_at.desc()).all()
-    circuits = Circuit.query.order_by(Circuit.name).all()
-    return render_template('setup/list.html', setups=setups, circuits=circuits,
-                           selected_circuit=circuit_id)
-
 
 @setup_bp.route('/new', methods=['GET', 'POST'])
 @login_required
@@ -67,17 +55,9 @@ def create():
         db.session.add(setup)
         db.session.commit()
         flash('Setup salvato.', 'success')
-        return redirect(url_for('setup.detail', setup_id=setup.id))
+        return redirect(url_for('hub.index'))
     return render_template('setup/form.html', circuits=circuits)
 
-
-@setup_bp.route('/<int:setup_id>')
-@login_required
-def detail(setup_id):
-    setup = Setup.query.get_or_404(setup_id)
-    if setup.team_id != current_user.team_id:
-        abort(403)
-    return render_template('setup/detail.html', setup=setup)
 
 
 @setup_bp.route('/<int:setup_id>/edit', methods=['GET', 'POST'])
@@ -98,7 +78,7 @@ def edit(setup_id):
             setattr(setup, k, v)
         db.session.commit()
         flash('Setup aggiornato.', 'success')
-        return redirect(url_for('setup.detail', setup_id=setup.id))
+        return redirect(url_for('hub.index'))
     return render_template('setup/form.html', setup=setup, circuits=circuits)
 
 
@@ -113,4 +93,4 @@ def delete(setup_id):
     db.session.delete(setup)
     db.session.commit()
     flash('Setup eliminato.', 'success')
-    return redirect(url_for('setup.list'))
+    return redirect(url_for('hub.index'))
