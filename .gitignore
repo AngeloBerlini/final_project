@@ -17,11 +17,21 @@ env/
 *.db
 *.sqlite3
 
-# Uploads
+# Uploads (user-generated content)
 app/uploads/
 
-# Flask
+# Flask instance folder
 instance/
+
+# Logs
+*.log
+flask.log
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
 
 # IDE
 .vscode/
@@ -32,3 +42,5 @@ instance/
 # OS
 .DS_Store
 Thumbs.db
+Thumbs.db:$DATA
+Desktop.ini

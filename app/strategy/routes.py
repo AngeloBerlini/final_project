@@ -36,10 +36,15 @@ def list():
                            selected_circuit=circuit_id)
 
 
+def _circuit_laps_map(circuits):
+    return {c.id: c.race_laps for c in circuits if c.race_laps}
+
+
 @strategy_bp.route('/new', methods=['GET', 'POST'])
 @login_required
 def create():
     circuits = Circuit.query.order_by(Circuit.name).all()
+    laps_map = _circuit_laps_map(circuits)
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         circuit_id = request.form.get('circuit_id', type=int)
@@ -48,11 +53,18 @@ def create():
         if not title or not circuit_id:
             flash('Titolo e circuito sono obbligatori.', 'danger')
             return render_template('strategy/form.html', circuits=circuits,
-                                   compounds=TIRE_COMPOUNDS)
+                                   compounds=TIRE_COMPOUNDS, laps_map=laps_map)
         if not stints_data:
             flash('Inserisci almeno uno stint valido (gomma + numero giri).', 'danger')
             return render_template('strategy/form.html', circuits=circuits,
-                                   compounds=TIRE_COMPOUNDS)
+                                   compounds=TIRE_COMPOUNDS, laps_map=laps_map)
+        circuit = Circuit.query.get(circuit_id)
+        if circuit and circuit.race_laps:
+            total = sum(s['laps'] for s in stints_data)
+            if total != circuit.race_laps:
+                flash(f'Il totale degli stint ({total} giri) deve corrispondere esattamente ai giri di gara del circuito ({circuit.race_laps}).', 'danger')
+                return render_template('strategy/form.html', circuits=circuits,
+                                       compounds=TIRE_COMPOUNDS, laps_map=laps_map)
         strategy = Strategy(title=title, circuit_id=circuit_id,
                             team_id=current_user.team_id,
                             author_id=current_user.id, note=note)
@@ -63,7 +75,8 @@ def create():
         db.session.commit()
         flash('Strategia salvata.', 'success')
         return redirect(url_for('strategy.detail', strategy_id=strategy.id))
-    return render_template('strategy/form.html', circuits=circuits, compounds=TIRE_COMPOUNDS)
+    return render_template('strategy/form.html', circuits=circuits, compounds=TIRE_COMPOUNDS,
+                           laps_map=laps_map)
 
 
 @strategy_bp.route('/<int:strategy_id>')
@@ -88,6 +101,7 @@ def edit(strategy_id):
     if strategy.author_id != current_user.id and not current_user.is_admin():
         abort(403)
     circuits = Circuit.query.order_by(Circuit.name).all()
+    laps_map = _circuit_laps_map(circuits)
     stints = StrategyStint.query.filter_by(strategy_id=strategy_id)\
                                 .order_by(StrategyStint.position).all()
     if request.method == 'POST':
@@ -98,11 +112,21 @@ def edit(strategy_id):
         if not title or not circuit_id:
             flash('Titolo e circuito sono obbligatori.', 'danger')
             return render_template('strategy/form.html', strategy=strategy,
-                                   stints=stints, circuits=circuits, compounds=TIRE_COMPOUNDS)
+                                   stints=stints, circuits=circuits, compounds=TIRE_COMPOUNDS,
+                                   laps_map=laps_map)
         if not stints_data:
             flash('Inserisci almeno uno stint valido.', 'danger')
             return render_template('strategy/form.html', strategy=strategy,
-                                   stints=stints, circuits=circuits, compounds=TIRE_COMPOUNDS)
+                                   stints=stints, circuits=circuits, compounds=TIRE_COMPOUNDS,
+                                   laps_map=laps_map)
+        circuit = Circuit.query.get(circuit_id)
+        if circuit and circuit.race_laps:
+            total = sum(s['laps'] for s in stints_data)
+            if total != circuit.race_laps:
+                flash(f'Il totale degli stint ({total} giri) deve corrispondere esattamente ai giri di gara del circuito ({circuit.race_laps}).', 'danger')
+                return render_template('strategy/form.html', strategy=strategy,
+                                       stints=stints, circuits=circuits, compounds=TIRE_COMPOUNDS,
+                                       laps_map=laps_map)
         strategy.title = title
         strategy.circuit_id = circuit_id
         strategy.note = note
@@ -113,7 +137,7 @@ def edit(strategy_id):
         flash('Strategia aggiornata.', 'success')
         return redirect(url_for('strategy.detail', strategy_id=strategy.id))
     return render_template('strategy/form.html', strategy=strategy, stints=stints,
-                           circuits=circuits, compounds=TIRE_COMPOUNDS)
+                           circuits=circuits, compounds=TIRE_COMPOUNDS, laps_map=laps_map)
 
 
 @strategy_bp.route('/<int:strategy_id>/delete', methods=['POST'])

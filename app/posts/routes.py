@@ -5,7 +5,7 @@ from app.models import Post, Circuit, Comment, Media
 from app.utils import save_upload
 from app.posts import posts_bp
 
-CATEGORIES = ['telemetria', 'analisi']
+CATEGORIES = ['analisi']
 
 
 @posts_bp.route('/')
@@ -34,17 +34,13 @@ def create():
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         body = request.form.get('body', '').strip()
-        category = request.form.get('category')
         circuit_id = request.form.get('circuit_id', type=int)
 
-        if not all([title, body, category, circuit_id]):
+        if not all([title, body, circuit_id]):
             flash('Compila tutti i campi obbligatori.', 'danger')
-            return render_template('posts/form.html', circuits=circuits, categories=CATEGORIES)
-        if category not in CATEGORIES:
-            flash('Categoria non valida.', 'danger')
-            return render_template('posts/form.html', circuits=circuits, categories=CATEGORIES)
+            return render_template('posts/form.html', circuits=circuits)
 
-        post = Post(title=title, body=body, category=category,
+        post = Post(title=title, body=body, category='analisi',
                     circuit_id=circuit_id, team_id=current_user.team_id,
                     author_id=current_user.id)
         db.session.add(post)
@@ -87,20 +83,17 @@ def edit(post_id):
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         body = request.form.get('body', '').strip()
-        category = request.form.get('category')
         circuit_id = request.form.get('circuit_id', type=int)
 
-        if not all([title, body, category, circuit_id]):
+        if not all([title, body, circuit_id]):
             flash('Compila tutti i campi obbligatori.', 'danger')
-            return render_template('posts/form.html', post=post, circuits=circuits,
-                                   categories=CATEGORIES)
+            return render_template('posts/form.html', post=post, circuits=circuits)
 
         post.title = title
         post.body = body
-        post.category = category
         post.circuit_id = circuit_id
         db.session.commit()
-        flash('Post aggiornato.', 'success')
+        flash('Analisi aggiornata.', 'success')
         return redirect(url_for('posts.detail', post_id=post.id))
     return render_template('posts/form.html', post=post, circuits=circuits,
                            categories=CATEGORIES)

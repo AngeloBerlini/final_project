@@ -37,6 +37,14 @@
       Definisci la sequenza di gomme e giri per ogni stint della gara.
     </p>
 
+    <div id="laps-counter" style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;padding:0.6rem 1rem;border-radius:6px;background:var(--surface-2,#1e1e1e);font-size:0.9rem;">
+      <span>Giri totali:</span>
+      <strong id="laps-used">0</strong>
+      <span>/</span>
+      <strong id="laps-total">–</strong>
+      <span id="laps-status" style="margin-left:auto;font-weight:600;"></span>
+    </div>
+
     <div id="stints-container">
       {% if stints %}
         {% for stint in stints %}
@@ -51,7 +59,8 @@
           </select>
           <div class="stint-laps-group">
             <input type="number" name="laps_{{ stint.position }}"
-                   min="1" max="80" value="{{ stint.laps }}" required>
+                   min="1" max="80" value="{{ stint.laps }}" required
+                   oninput="updateCounter()">
             <span style="color:var(--text-muted);font-size:0.85rem;">giri</span>
           </div>
           <button type="button" class="btn btn-danger btn-sm" onclick="removeStint(this)">−</button>
@@ -83,7 +92,39 @@
 
 <script>
 const COMPOUNDS = {{ compounds | tojson }};
+const LAPS_MAP = {{ laps_map | tojson }};
 let stintCount = document.querySelectorAll('.stint-row').length;
+
+function getRaceLaps() {
+  const sel = document.querySelector('select[name="circuit_id"]');
+  return sel ? (LAPS_MAP[parseInt(sel.value)] || null) : null;
+}
+
+function updateCounter() {
+  const raceLaps = getRaceLaps();
+  const used = Array.from(document.querySelectorAll('.stint-row input[type="number"]'))
+    .reduce((sum, inp) => sum + (parseInt(inp.value) || 0), 0);
+  document.getElementById('laps-used').textContent = used;
+  const totalEl = document.getElementById('laps-total');
+  const statusEl = document.getElementById('laps-status');
+  if (raceLaps) {
+    totalEl.textContent = raceLaps;
+    const diff = used - raceLaps;
+    if (diff === 0) {
+      statusEl.textContent = 'Perfetto';
+      statusEl.style.color = 'var(--success, #4caf50)';
+    } else if (diff < 0) {
+      statusEl.textContent = `Mancano ${-diff} giri`;
+      statusEl.style.color = 'var(--warning, #ff9800)';
+    } else {
+      statusEl.textContent = `Eccedenti di ${diff} giri`;
+      statusEl.style.color = 'var(--danger, #f44336)';
+    }
+  } else {
+    totalEl.textContent = '–';
+    statusEl.textContent = '';
+  }
+}
 
 function buildOptions(selected) {
   return COMPOUNDS.map(c =>
@@ -101,18 +142,20 @@ function addStint(compound, laps) {
     <select name="tire_${stintCount}" class="tire-select">${buildOptions(compound || COMPOUNDS[0])}</select>
     <div class="stint-laps-group">
       <input type="number" name="laps_${stintCount}" min="1" max="80"
-             value="${laps || ''}" placeholder="Giri" required>
+             value="${laps || ''}" placeholder="Giri" required oninput="updateCounter()">
       <span style="color:var(--text-muted);font-size:0.85rem;">giri</span>
     </div>
     <button type="button" class="btn btn-danger btn-sm" onclick="removeStint(this)">−</button>
   `;
   document.getElementById('stints-container').appendChild(row);
+  updateCounter();
 }
 
 function removeStint(btn) {
   if (document.querySelectorAll('.stint-row').length <= 1) return;
   btn.closest('.stint-row').remove();
   renumber();
+  updateCounter();
 }
 
 function renumber() {
@@ -126,6 +169,9 @@ function renumber() {
   stintCount = document.querySelectorAll('.stint-row').length;
 }
 
+document.querySelector('select[name="circuit_id"]').addEventListener('change', updateCounter);
+
 if (stintCount === 0) addStint();
+else updateCounter();
 </script>
 {% endblock %}

@@ -5,21 +5,35 @@
   <h1>{% if setup %}Modifica setup{% else %}Nuovo setup vettura{% endif %}</h1>
 </div>
 
+{# Macro: field with range hint #}
+{% macro param_field(name, label, unit, range_text, hint='', step='0.1', value='', placeholder='') %}
+<div class="form-group param-group">
+  <div class="param-header">
+    <label for="{{ name }}">{{ label }}{% if unit %} <span class="param-unit">({{ unit }})</span>{% endif %}</label>
+    <span class="param-range">{{ range_text }}</span>
+  </div>
+  <input type="number" id="{{ name }}" name="{{ name }}" step="{{ step }}"
+         value="{{ value }}" placeholder="{{ placeholder }}">
+  <small class="field-hint">{{ hint }}</small>
+</div>
+{% endmacro %}
+
 <form method="POST"
       action="{{ url_for('setup.edit', setup_id=setup.id) if setup else url_for('setup.create') }}">
 
-  <!-- Intestazione -->
+  <!-- Generali -->
   <div class="card">
     <h3 class="section-title">Informazioni generali</h3>
     <div class="form-row">
       <div class="form-group">
-        <label>Titolo</label>
-        <input type="text" name="title" value="{{ setup.title if setup else '' }}" required
-               placeholder="es. Monaco QP – Setup bassa deportanza">
+        <label for="title">Titolo</label>
+        <input type="text" id="title" name="title"
+               value="{{ setup.title if setup else '' }}" required
+               placeholder="es. Monaco QP – bassa deportanza">
       </div>
       <div class="form-group">
-        <label>Circuito</label>
-        <select name="circuit_id" required>
+        <label for="circuit_id">Circuito</label>
+        <select id="circuit_id" name="circuit_id" required>
           {% for c in circuits %}
           <option value="{{ c.id }}" {% if setup and setup.circuit_id == c.id %}selected{% endif %}>
             {{ c.name }}
@@ -34,62 +48,68 @@
   <div class="card">
     <h3 class="section-title">Aerodinamica</h3>
     <div class="setup-grid">
-      <div class="form-group">
-        <label>Ala anteriore (mm)</label>
-        <input type="number" step="0.1" name="ala_anteriore"
-               value="{{ setup.ala_anteriore if setup and setup.ala_anteriore is not none else '' }}"
-               placeholder="es. 42">
-      </div>
-      <div class="form-group">
-        <label>Ala posteriore (mm)</label>
-        <input type="number" step="0.1" name="ala_posteriore"
-               value="{{ setup.ala_posteriore if setup and setup.ala_posteriore is not none else '' }}"
-               placeholder="es. 58">
-      </div>
+      {{ param_field(
+          'ala_anteriore', 'Ala anteriore', 'mm',
+          'Range: 0 – 50 mm',
+          hint='Regola la deportanza e il bilanciamento anteriore. Più alta = più grip, ma più resistenza.',
+          value=setup.ala_anteriore if setup and setup.ala_anteriore is not none else '',
+          placeholder='es. 30'
+      ) }}
+      {{ param_field(
+          'ala_posteriore', 'Ala posteriore', 'mm',
+          'Range: 0 – 60 mm',
+          hint='Governa stabilità in rettilineo e trazione in uscita. Più alta = più trazione, meno velocità max.',
+          value=setup.ala_posteriore if setup and setup.ala_posteriore is not none else '',
+          placeholder='es. 45'
+      ) }}
     </div>
   </div>
 
   <!-- Differenziale -->
   <div class="card">
     <h3 class="section-title">Differenziale</h3>
-    <div class="setup-grid-1">
-      <div class="form-group">
-        <label>Differenziale uscita curva (%)</label>
-        <input type="number" step="0.1" min="0" max="100" name="differenziale"
-               value="{{ setup.differenziale if setup and setup.differenziale is not none else '' }}"
-               placeholder="es. 60">
-      </div>
-    </div>
+    {{ param_field(
+        'differenziale', 'Differenziale uscita curva', '%',
+        'Range: 50 – 80%',
+        hint='Percentuale di bloccaggio in uscita di curva. Valori alti = più trazione ma meno agilità.',
+        step='1',
+        value=setup.differenziale if setup and setup.differenziale is not none else '',
+        placeholder='es. 65'
+    ) }}
   </div>
 
   <!-- Geometria sospensioni -->
   <div class="card">
     <h3 class="section-title">Geometria sospensioni</h3>
     <div class="setup-grid">
-      <div class="form-group">
-        <label>Camber anteriore (°)</label>
-        <input type="number" step="0.01" name="camber_ant"
-               value="{{ setup.camber_ant if setup and setup.camber_ant is not none else '' }}"
-               placeholder="es. -3.50">
-      </div>
-      <div class="form-group">
-        <label>Camber posteriore (°)</label>
-        <input type="number" step="0.01" name="camber_post"
-               value="{{ setup.camber_post if setup and setup.camber_post is not none else '' }}"
-               placeholder="es. -1.80">
-      </div>
-      <div class="form-group">
-        <label>Toe anteriore (mm)</label>
-        <input type="number" step="0.01" name="toe_ant"
-               value="{{ setup.toe_ant if setup and setup.toe_ant is not none else '' }}"
-               placeholder="es. 0.10">
-      </div>
-      <div class="form-group">
-        <label>Toe posteriore (mm)</label>
-        <input type="number" step="0.01" name="toe_post"
-               value="{{ setup.toe_post if setup and setup.toe_post is not none else '' }}"
-               placeholder="es. 0.20">
-      </div>
+      {{ param_field(
+          'camber_ant', 'Camber anteriore', '°',
+          'Range: −4.5° → −1.5°',
+          hint='Più negativo = maggiore contatto gomma in curva. Aumenta l\'usura sulla gomma esterna.',
+          value=setup.camber_ant if setup and setup.camber_ant is not none else '',
+          placeholder='es. -3.20'
+      ) }}
+      {{ param_field(
+          'camber_post', 'Camber posteriore', '°',
+          'Range: −2.5° → −0.5°',
+          hint='Stabilizza il posteriore in curva. Evitare valori troppo negativi per non surriscaldare la gomma.',
+          value=setup.camber_post if setup and setup.camber_post is not none else '',
+          placeholder='es. -1.50'
+      ) }}
+      {{ param_field(
+          'toe_ant', 'Toe anteriore', 'mm',
+          'Range: −0.5 → +0.5 mm',
+          hint='Toe-out (negativo) = più agilità in inserimento. Toe-in (positivo) = maggiore stabilità.',
+          value=setup.toe_ant if setup and setup.toe_ant is not none else '',
+          placeholder='es. 0.10'
+      ) }}
+      {{ param_field(
+          'toe_post', 'Toe posteriore', 'mm',
+          'Range: 0 → +0.5 mm',
+          hint='Toe-in posteriore migliora la stabilità in rettilineo. Valori negativi rischiano sovrasterzo.',
+          value=setup.toe_post if setup and setup.toe_post is not none else '',
+          placeholder='es. 0.20'
+      ) }}
     </div>
   </div>
 
@@ -97,58 +117,81 @@
   <div class="card">
     <h3 class="section-title">Sospensioni</h3>
     <div class="setup-grid">
-      <div class="form-group">
-        <label>Sospensioni anteriore</label>
-        <input type="text" name="sospensioni_ant"
+      <div class="form-group param-group">
+        <div class="param-header">
+          <label for="sospensioni_ant">Sospensioni anteriore</label>
+          <span class="param-range">Range: 1 – 12 (click)</span>
+        </div>
+        <input type="text" id="sospensioni_ant" name="sospensioni_ant"
                value="{{ setup.sospensioni_ant if setup and setup.sospensioni_ant else '' }}"
-               placeholder="es. 7 – morbida">
+               placeholder="es. 6 – media">
+        <small class="field-hint">Rigidità della molla e ammortizzatore. Più morbido = migliore grip su dossi; più rigido = reattività e controllo in curva.</small>
       </div>
-      <div class="form-group">
-        <label>Sospensioni posteriore</label>
-        <input type="text" name="sospensioni_post"
+      <div class="form-group param-group">
+        <div class="param-header">
+          <label for="sospensioni_post">Sospensioni posteriore</label>
+          <span class="param-range">Range: 1 – 12 (click)</span>
+        </div>
+        <input type="text" id="sospensioni_post" name="sospensioni_post"
                value="{{ setup.sospensioni_post if setup and setup.sospensioni_post else '' }}"
-               placeholder="es. 5 – media">
+               placeholder="es. 5 – morbida">
+        <small class="field-hint">Più rigido = meno rollio e più puro, ma rischio di perdita di trazione su asfalto irregolare.</small>
       </div>
     </div>
   </div>
 
   <!-- Freni -->
   <div class="card">
-    <h3 class="section-title">Freni</h3>
-    <div class="setup-grid-1">
-      <div class="form-group">
-        <label>Bilanciamento freni (%)</label>
-        <input type="number" min="1" max="99" name="bilanciamento_freni"
-               value="{{ setup.bilanciamento_freni if setup and setup.bilanciamento_freni is not none else '' }}"
-               placeholder="es. 57">
-      </div>
-    </div>
+    <h3 class="section-title">Bilanciamento freni</h3>
+    {{ param_field(
+        'bilanciamento_freni', 'Bilanciamento freni', '%',
+        'Range: 52 – 65%',
+        hint='Percentuale di freno anteriore. Più alto = più potenza davanti, rischio bloccaggio anteriore. Più basso = tendenza al sovrasterzo in frenata.',
+        step='1',
+        value=setup.bilanciamento_freni if setup and setup.bilanciamento_freni is not none else '',
+        placeholder='es. 57'
+    ) }}
   </div>
 
-  <!-- Pressioni pneumatici -->
+  <!-- Pressioni -->
   <div class="card">
-    <h3 class="section-title">Pressioni pneumatici (psi)</h3>
+    <h3 class="section-title">Pressioni pneumatici</h3>
+    <p class="field-hint" style="margin-bottom:1rem;">
+      Pressione più alta = minor contatto a terra ma meno surriscaldamento. Bilanciare i quattro angoli per uniformità termica.
+    </p>
     <div class="tires-grid">
       <div class="tire-corner">
-        <span class="tire-label">Ant. SX</span>
+        <div class="param-header">
+          <label>Ant. Sinistra</label>
+          <span class="param-range">21 – 26 psi</span>
+        </div>
         <input type="number" step="0.1" name="pressione_ant_sx"
                value="{{ setup.pressione_ant_sx if setup and setup.pressione_ant_sx is not none else '' }}"
                placeholder="23.5">
       </div>
       <div class="tire-corner">
-        <span class="tire-label">Ant. DX</span>
+        <div class="param-header">
+          <label>Ant. Destra</label>
+          <span class="param-range">21 – 26 psi</span>
+        </div>
         <input type="number" step="0.1" name="pressione_ant_dx"
                value="{{ setup.pressione_ant_dx if setup and setup.pressione_ant_dx is not none else '' }}"
                placeholder="23.5">
       </div>
       <div class="tire-corner">
-        <span class="tire-label">Post. SX</span>
+        <div class="param-header">
+          <label>Post. Sinistra</label>
+          <span class="param-range">19 – 24 psi</span>
+        </div>
         <input type="number" step="0.1" name="pressione_post_sx"
                value="{{ setup.pressione_post_sx if setup and setup.pressione_post_sx is not none else '' }}"
                placeholder="21.0">
       </div>
       <div class="tire-corner">
-        <span class="tire-label">Post. DX</span>
+        <div class="param-header">
+          <label>Post. Destra</label>
+          <span class="param-range">19 – 24 psi</span>
+        </div>
         <input type="number" step="0.1" name="pressione_post_dx"
                value="{{ setup.pressione_post_dx if setup and setup.pressione_post_dx is not none else '' }}"
                placeholder="21.0">
@@ -160,8 +203,8 @@
   <div class="card">
     <h3 class="section-title">Note aggiuntive</h3>
     <div class="form-group">
-      <textarea name="note" rows="4"
-                placeholder="Osservazioni, condizioni pista, riferimento al pilota...">{{ setup.note if setup and setup.note else '' }}</textarea>
+      <textarea name="note" rows="3"
+                placeholder="Condizioni pista, feedback pilota, confronto con setup precedente...">{{ setup.note if setup and setup.note else '' }}</textarea>
     </div>
   </div>
 
@@ -169,9 +212,8 @@
     <button type="submit" class="btn btn-primary">
       {% if setup %}Aggiorna setup{% else %}Salva setup{% endif %}
     </button>
-    <a href="{{ url_for('setup.detail', setup_id=setup.id) if setup else url_for('setup.list') }}"
+    <a href="{{ url_for('setup.detail', setup_id=setup.id) if setup else url_for('hub.index') }}"
        class="btn btn-secondary">Annulla</a>
   </div>
-
 </form>
 {% endblock %}

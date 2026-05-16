@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Bacheca – PIT WALL{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Bacheca</h1>
+    <p>{{ current_user.team.name }}</p>
+  </div>
+  <div class="actions">
+    <a href="{{ url_for('posts.create') }}" class="btn btn-secondary btn-sm">+ Analisi</a>
+    <a href="{{ url_for('setup.create') }}" class="btn btn-secondary btn-sm">+ Setup</a>
+    <a href="{{ url_for('strategy.create') }}" class="btn btn-primary btn-sm">+ Strategia</a>
+  </div>
+</div>
+
+<form method="GET" class="filters">
+  <select name="circuit_id" onchange="this.form.submit()">
+    <option value="">Tutti i circuiti</option>
+    {% for c in circuits %}
+    <option value="{{ c.id }}" {% if selected_circuit == c.id %}selected{% endif %}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  {% if selected_circuit %}
+  <a href="{{ url_for('hub.index') }}" class="btn btn-secondary btn-sm">Reset</a>
+  {% endif %}
+</form>
+
+{% if items %}
+<div class="posts-grid">
+  {% for item in items %}
+  {% set obj = item.obj %}
+
+  {% if item.type == 'post' %}
+  <a href="{{ url_for('posts.detail', post_id=obj.id) }}" class="card post-card">
+    <div class="card-header">
+      <span class="card-title">{{ obj.title }}</span>
+      <span class="badge badge-analisi">Analisi</span>
+    </div>
+    <div class="card-meta">
+      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+      {{ obj.created_at.strftime('%d %b %Y') }} &bull;
+      {{ obj.comments.count() }} commenti &bull; {{ obj.media_files.count() }} file
+    </div>
+  </a>
+
+  {% elif item.type == 'setup' %}
+  <a href="{{ url_for('setup.detail', setup_id=obj.id) }}" class="card post-card">
+    <div class="card-header">
+      <span class="card-title">{{ obj.title }}</span>
+      <span class="badge badge-setup">Setup</span>
+    </div>
+    <div class="card-meta">
+      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+      {{ obj.created_at.strftime('%d %b %Y') }}
+    </div>
+  </a>
+
+  {% elif item.type == 'strategy' %}
+  <a href="{{ url_for('strategy.detail', strategy_id=obj.id) }}" class="card post-card">
+    <div class="card-header">
+      <span class="card-title">{{ obj.title }}</span>
+      <span class="badge badge-strategia">Strategia</span>
+    </div>
+    <div class="card-meta" style="margin-bottom:0.5rem;">
+      {{ obj.circuit.name }} &bull; {{ obj.author.username }} &bull;
+      {{ obj.created_at.strftime('%d %b %Y') }} &bull;
+      {{ obj.stints.count() }} stint
+    </div>
+    <div class="stint-preview">
+      {% for stint in obj.stints.all() %}
+      <span class="tire-badge tire-{{ stint.tire_compound|replace(' ', '-') }}"
+            title="Stint {{ stint.position }}: {{ stint.laps }} giri">{{ stint.laps }}g</span>
+      {% endfor %}
+    </div>
+  </a>
+  {% endif %}
+
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h3>Nessun contenuto</h3>
+  <p>{% if selected_circuit %}Prova a cambiare il filtro circuito.{% else %}Inizia creando un'analisi, un setup o una strategia.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

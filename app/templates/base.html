@@ -12,9 +12,7 @@
     <nav>
       <a href="{{ url_for('circuits.list') }}">Circuiti</a>
       {% if current_user.is_authenticated %}
-      <a href="{{ url_for('posts.list') }}">Post</a>
-      <a href="{{ url_for('setup.list') }}">Setup</a>
-      <a href="{{ url_for('strategy.list') }}">Strategia</a>
+      <a href="{{ url_for('hub.index') }}">Bacheca</a>
       <a href="{{ url_for('profile.index') }}">{{ current_user.username }}</a>
       {% if current_user.is_admin() %}
       <a href="{{ url_for('team.manage') }}">Team</a>

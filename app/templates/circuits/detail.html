@@ -6,7 +6,7 @@
 </div>
 
 <div class="circuit-detail-grid">
-  <!-- Info card -->
+  <!-- Info -->
   <div class="card">
     <h2 style="font-size:1.6rem;margin-bottom:0.25rem;">{{ circuit.name }}</h2>
     <p style="color:var(--text-muted);margin-bottom:1.5rem;">{{ circuit.country }}</p>
@@ -20,6 +20,12 @@
         <span>Numero di curve</span>
         <strong>{{ circuit.num_curves }}</strong>
       </div>
+      {% if circuit.race_laps %}
+      <div class="circuit-stat">
+        <span>Giri di gara</span>
+        <strong>{{ circuit.race_laps }}</strong>
+      </div>
+      {% endif %}
       {% if circuit.lap_record %}
       <div class="circuit-stat">
         <span>Record sul giro</span>
@@ -30,17 +36,13 @@
 
     {% if current_user.is_authenticated %}
     <div class="actions" style="margin-top:1.5rem;flex-wrap:wrap;">
-      <a href="{{ url_for('posts.list') }}?circuit_id={{ circuit.id }}"
-         class="btn btn-secondary btn-sm">Post del team</a>
-      <a href="{{ url_for('setup.list') }}?circuit_id={{ circuit.id }}"
-         class="btn btn-secondary btn-sm">Setup</a>
-      <a href="{{ url_for('strategy.list') }}?circuit_id={{ circuit.id }}"
-         class="btn btn-secondary btn-sm">Strategie</a>
+      <a href="{{ url_for('hub.index') }}?circuit_id={{ circuit.id }}"
+         class="btn btn-secondary btn-sm">Bacheca team</a>
     </div>
     {% endif %}
   </div>
 
-  <!-- Layout image card -->
+  <!-- Layout image -->
   <div class="card">
     <h3 style="margin-bottom:1rem;">Layout del tracciato</h3>
     {% if circuit.layout_image %}
@@ -67,14 +69,5 @@
     </form>
     {% endif %}
   </div>
-</div>
-
-<!-- Video section -->
-<div class="card" style="margin-top:0;">
-  <h3 style="margin-bottom:0.5rem;">Video</h3>
-  <p style="color:var(--text-muted);font-size:0.875rem;">
-    I video saranno disponibili in una prossima versione. I file video vanno inseriti nella cartella
-    <code>app/static/videos/</code>.
-  </p>
 </div>
 {% endblock %}

@@ -104,7 +104,7 @@ a:hover { color: var(--accent-hover); }
   white-space: nowrap;
   border: 1px solid;
 }
-.badge-telemetria { background: rgba(52,152,219,.15); color: #5dade2; border-color: #2e86c1; }
+.badge-member     { background: rgba(52,152,219,.15); color: #5dade2; border-color: #2e86c1; }
 .badge-strategia  { background: rgba(155,89,182,.15); color: #a569bd; border-color: #7d3c98; }
 .badge-setup      { background: rgba(243,156,18,.15); color: #f39c12; border-color: #d68910; }
 .badge-analisi    { background: rgba(39,174,96,.15);  color: #52be80; border-color: #1e8449; }
@@ -273,6 +273,18 @@ tr:last-child td { border-bottom: none; }
 
 /* ── Footer ── */
 footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center; padding: 1rem; color: var(--text-muted); font-size: 0.8rem; }
+
+/* ── Hub type badges ── */
+.badge-setup     { background: rgba(255,165,0,.15); color: #ffa500; border-color: #cc8400; }
+.badge-strategia { background: rgba(175,122,197,.15); color: #af7ac5; border-color: #884ea0; }
+
+/* ── Setup form param hints ── */
+.param-group { gap: 0.3rem; }
+.param-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.3rem; }
+.param-unit   { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; }
+.param-range  { font-size: 0.72rem; color: var(--accent); font-weight: 600; letter-spacing: 0.3px; white-space: nowrap; }
+.field-hint   { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; display: block; margin-top: 0.25rem; }
+.field-hint-inline { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; }
 
 /* ── Tire compound badges ── */
 .tire-badge {

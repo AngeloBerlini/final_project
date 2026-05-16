@@ -6,7 +6,7 @@
     <h1>{{ current_user.username }}</h1>
     <p>
       {{ current_user.team.name }} &bull;
-      <span class="badge badge-{% if current_user.is_admin() %}analisi{% else %}telemetria{% endif %}">
+      <span class="badge badge-{% if current_user.is_admin() %}analisi{% else %}member{% endif %}">
         {{ current_user.role }}
       </span>
       &bull; {{ current_user.email }}
